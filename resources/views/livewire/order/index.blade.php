@@ -1,9 +1,8 @@
 <div>
-    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">Order</h1>
-            <p class="text-gray-500 mt-1">Kelola request order dari divisi</p>
+            <p class="text-gray-500 mt-1">Kelola request order</p>
         </div>
     </div>
 
@@ -85,7 +84,7 @@
                             <td class="px-6 py-4">
                                 <div>
                                     <p class="font-medium text-gray-900">{{ $order->nama_user_request ?? $order->createdUser?->name ?? '-' }}</p>
-                                    <p class="text-sm text-gray-500">{{ $order->department?->name ?? '-' }}</p>
+                                    <p class="text-sm text-gray-500">{{ $order->organization_name }}</p>
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-center">

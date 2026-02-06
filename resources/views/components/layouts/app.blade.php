@@ -50,36 +50,139 @@
     <style>
         [x-cloak] { display: none !important; }
         
+        /* Sidebar Links */
         .sidebar-link {
-            @apply flex items-center gap-3 px-4 py-3 text-gray-300 rounded-lg transition-all duration-200;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #d1d5db;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            text-decoration: none;
         }
         .sidebar-link:hover {
-            @apply bg-white/10 text-white;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
         }
         .sidebar-link.active {
-            @apply bg-primary-600 text-white shadow-lg shadow-primary-600/30;
+            background-color: #2563eb;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
         }
         
+        /* Cards */
         .card {
-            @apply bg-white rounded-xl shadow-sm border border-gray-100;
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid #f3f4f6;
         }
         
+        /* Buttons */
         .btn-primary {
-            @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            background-color: #2563eb;
+            color: white;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
         }
         
         .btn-secondary {
-            @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            background-color: #f3f4f6;
+            color: #374151;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
         }
         
+        /* Badges */
         .badge {
-            @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.125rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
-        .badge-green { @apply bg-green-100 text-green-800; }
-        .badge-yellow { @apply bg-yellow-100 text-yellow-800; }
-        .badge-red { @apply bg-red-100 text-red-800; }
-        .badge-blue { @apply bg-blue-100 text-blue-800; }
-        .badge-gray { @apply bg-gray-100 text-gray-800; }
+        .badge-green { background-color: #dcfce7; color: #166534; }
+        .badge-yellow { background-color: #fef9c3; color: #854d0e; }
+        .badge-red { background-color: #fee2e2; color: #991b1b; }
+        .badge-blue { background-color: #dbeafe; color: #1e40af; }
+        .badge-purple { background-color: #f3e8ff; color: #7c3aed; }
+        .badge-gray { background-color: #f3f4f6; color: #374151; }
+        
+        /* Table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead {
+            background-color: #f9fafb;
+        }
+        th {
+            padding: 0.75rem 1.5rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #4b5563;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        td {
+            padding: 1rem 1.5rem;
+        }
+        tbody tr {
+            border-top: 1px solid #f3f4f6;
+        }
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
+        
+        /* Form inputs */
+        input[type="text"],
+        input[type="number"],
+        input[type="password"],
+        input[type="email"],
+        input[type="datetime-local"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.625rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
     </style>
     
     @livewireStyles

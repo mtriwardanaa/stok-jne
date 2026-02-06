@@ -70,6 +70,37 @@ class User extends Authenticatable
             ->implode('');
     }
 
+    /**
+     * Check if user is internal (karyawan)
+     */
+    public function isInternal(): bool
+    {
+        return $this->type === 'internal';
+    }
+
+    /**
+     * Check if user is partner (mitra)
+     */
+    public function isPartner(): bool
+    {
+        return $this->type === 'partner';
+    }
+
+    /**
+     * Get organization name based on user type
+     * Internal -> Department name
+     * Partner -> Group/Partner name
+     */
+    public function getOrganizationNameAttribute(): string
+    {
+        if ($this->isInternal()) {
+            return $this->department?->name ?? 'Internal';
+        }
+        
+        // Partner: get partner name via group
+        return $this->group?->partner?->name ?? $this->group?->name ?? 'Mitra';
+    }
+
     protected function casts(): array
     {
         return [

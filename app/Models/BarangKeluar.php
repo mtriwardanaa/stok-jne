@@ -48,9 +48,12 @@ class BarangKeluar extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    public function department()
+    /**
+     * Get organization name from the linked order
+     */
+    public function getOrganizationNameAttribute(): string
     {
-        return $this->belongsTo(Department::class, 'id_divisi');
+        return $this->order?->organization_name ?? $this->nama_user_request ?? '-';
     }
 
     public function hargaRecords()

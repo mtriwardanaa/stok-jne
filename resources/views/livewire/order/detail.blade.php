@@ -48,8 +48,8 @@
                         <p class="font-medium text-gray-900">{{ $order->hp_user_request ?? '-' }}</p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-500">Divisi</p>
-                        <p class="font-medium text-gray-900">{{ $order->department?->name ?? '-' }}</p>
+                        <p class="text-sm text-gray-500">Organisasi</p>
+                        <p class="font-medium text-gray-900">{{ $order->organization_name }}</p>
                     </div>
                 </div>
             </div>
