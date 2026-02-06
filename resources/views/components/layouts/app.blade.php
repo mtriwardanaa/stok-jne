@@ -593,24 +593,20 @@
         }
         .select2-container--default .select2-selection--single .select2-selection__clear {
             position: absolute;
-            right: 32px;
+            right: 28px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 18px;
+            font-size: 16px;
             color: #9ca3af;
             font-weight: normal;
             cursor: pointer;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            margin-top: 0;
         }
         .select2-container--default .select2-selection--single .select2-selection__clear:hover {
             color: #ef4444;
         }
         .select2-container--default .select2-selection--single .select2-selection__rendered {
-            padding-right: 50px;
+            padding-right: 55px;
         }
         .select2-results__options { max-height: 280px; }
     </style>
