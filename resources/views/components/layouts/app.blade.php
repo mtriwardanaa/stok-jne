@@ -11,10 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- jQuery & Select2 -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -469,146 +466,37 @@
 
     @livewireScripts
     
-    <!-- Select2 Initialization -->
-    <script>
-        let select2InitTimer = null;
-        
-        function initSelect2() {
-            // Only init selects that haven't been initialized yet
-            $('select:not(.select2-hidden-accessible):not(.no-select2)').each(function() {
-                const $el = $(this);
-                
-                $el.select2({
-                    width: '100%',
-                    placeholder: $el.find('option:first').text() || 'Pilih...',
-                    allowClear: !$el.prop('required'),
-                    minimumResultsForSearch: 5
-                }).on('select2:select select2:clear', function(e) {
-                    // Trigger native change for Livewire
-                    let event = new Event('change', { bubbles: true });
-                    this.dispatchEvent(event);
-                });
-            });
-        }
-        
-        function debouncedInitSelect2() {
-            // Debounce to prevent multiple rapid calls
-            clearTimeout(select2InitTimer);
-            select2InitTimer = setTimeout(function() {
-                // Don't reinit if any dropdown is currently open
-                if ($('.select2-container--open').length === 0) {
-                    initSelect2();
-                }
-            }, 100);
-        }
-        
-        // Initialize on page load
-        $(document).ready(initSelect2);
-        
-        // Reinitialize after Livewire updates (debounced)
-        document.addEventListener('livewire:init', () => {
-            Livewire.hook('morph.updated', () => debouncedInitSelect2());
-        });
-        
-        // Handle navigation
-        document.addEventListener('livewire:navigated', () => setTimeout(initSelect2, 50));
-    </script>
-    
     <style>
-        /* Select2 Custom Theme */
-        .select2-container { font-family: 'Inter', sans-serif; }
-        .select2-container--default .select2-selection--single {
+        /* Native Select Styling - No flickering */
+        select {
             height: 46px;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
-            background: #fff;
-            display: flex;
-            align-items: center;
+            background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") right 12px center no-repeat;
+            background-size: 20px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            color: #1f2937;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 40px;
+            transition: all 0.2s ease;
         }
-        .select2-container--default .select2-selection--single:hover {
+        select:hover {
             border-color: #cbd5e1;
         }
-        .select2-container--default.select2-container--focus .select2-selection--single,
-        .select2-container--default.select2-container--open .select2-selection--single {
+        select:focus {
+            outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-            outline: none;
         }
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            color: #1f2937;
-            line-height: 28px;
-            padding-left: 0;
-            font-size: 14px;
+        select option {
+            padding: 12px;
         }
-        .select2-container--default .select2-selection--single .select2-selection__placeholder {
-            color: #9ca3af;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 44px;
-            right: 10px;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__arrow b {
-            border-color: #6b7280 transparent transparent transparent;
-        }
-        .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
-            border-color: transparent transparent #6b7280 transparent;
-        }
-        .select2-dropdown {
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            margin-top: 4px;
-            overflow: hidden;
-        }
-        .select2-container--default .select2-search--dropdown {
-            padding: 10px;
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .select2-container--default .select2-search--dropdown .select2-search__field {
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 14px;
-            outline: none;
-        }
-        .select2-container--default .select2-search--dropdown .select2-search__field:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        .select2-results__option {
-            padding: 12px 16px;
-            font-size: 14px;
-            color: #374151;
-        }
-        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
-            background: #3b82f6;
-            color: white;
-        }
-        .select2-container--default .select2-results__option--selected {
-            background: #eff6ff;
-            color: #1d4ed8;
-            font-weight: 500;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__clear {
-            position: absolute;
-            right: 28px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 16px;
-            color: #9ca3af;
-            font-weight: normal;
-            cursor: pointer;
-            margin-top: 0;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__clear:hover {
-            color: #ef4444;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            padding-right: 55px;
-        }
-        .select2-results__options { max-height: 280px; }
     </style>
 </body>
 </html>
+
