@@ -63,6 +63,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/barang-keluar', BarangKeluarIndex::class)->name('barang-keluar.index');
     Route::get('/barang-keluar/create', BarangKeluarCreate::class)->name('barang-keluar.create');
     Route::get('/barang-keluar/{id}', BarangKeluarDetail::class)->name('barang-keluar.detail');
+    Route::get('/barang-keluar/{id}/invoice', function ($id) {
+        $barangKeluar = \App\Models\BarangKeluar::with(['details.barang.satuan', 'order', 'createdUser', 'requestUser'])->findOrFail($id);
+        return view('pdf.invoice', compact('barangKeluar'));
+    })->name('barang-keluar.invoice');
+    Route::get('/barang-keluar/{id}/surat-jalan', function ($id) {
+        $barangKeluar = \App\Models\BarangKeluar::with(['details.barang.satuan', 'order', 'createdUser', 'requestUser'])->findOrFail($id);
+        return view('pdf.surat-jalan', compact('barangKeluar'));
+    })->name('barang-keluar.surat-jalan');
 
     // Supplier
     Route::get('/supplier', SupplierIndex::class)->name('supplier.index');

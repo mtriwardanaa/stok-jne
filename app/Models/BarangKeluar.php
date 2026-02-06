@@ -18,7 +18,9 @@ class BarangKeluar extends Model
         'id_kategori',
         'id_agen',
         'id_order',
+        'id_user_request',
         'nama_user_request',
+        'no_hp',
         'distribusi_sales',
         'created_by',
         'updated_by',
@@ -38,6 +40,11 @@ class BarangKeluar extends Model
         return $this->belongsTo(Order::class, 'id_order');
     }
 
+    public function requestUser()
+    {
+        return $this->belongsTo(User::class, 'id_user_request');
+    }
+
     public function createdUser()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -49,11 +56,19 @@ class BarangKeluar extends Model
     }
 
     /**
-     * Get organization name from the linked order
+     * Get organization name from request user or order
      */
     public function getOrganizationNameAttribute(): string
     {
-        return $this->order?->organization_name ?? $this->nama_user_request ?? '-';
+        // Try from request user first
+        if ($this->requestUser) {
+            return $this->requestUser->organization_name;
+        }
+        // Then from order
+        if ($this->order) {
+            return $this->order->organization_name;
+        }
+        return '-';
     }
 
     public function hargaRecords()
