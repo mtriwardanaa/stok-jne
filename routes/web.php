@@ -9,6 +9,7 @@ use App\Livewire\BarangMasuk\Index as BarangMasukIndex;
 use App\Livewire\BarangMasuk\Create as BarangMasukCreate;
 use App\Livewire\BarangMasuk\Detail as BarangMasukDetail;
 use App\Livewire\BarangKeluar\Index as BarangKeluarIndex;
+use App\Livewire\BarangKeluar\Create as BarangKeluarCreate;
 use App\Livewire\BarangKeluar\Detail as BarangKeluarDetail;
 use App\Livewire\Supplier\Index as SupplierIndex;
 use App\Livewire\Report\Index as ReportIndex;
@@ -60,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Barang Keluar
     Route::get('/barang-keluar', BarangKeluarIndex::class)->name('barang-keluar.index');
+    Route::get('/barang-keluar/create', BarangKeluarCreate::class)->name('barang-keluar.create');
     Route::get('/barang-keluar/{id}', BarangKeluarDetail::class)->name('barang-keluar.detail');
 
     // Supplier

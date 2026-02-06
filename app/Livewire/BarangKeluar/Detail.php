@@ -11,7 +11,7 @@ class Detail extends Component
 
     public function mount($id)
     {
-        $this->barangKeluar = BarangKeluar::with(['createdUser', 'details.barang.satuan', 'order', 'department'])->findOrFail($id);
+        $this->barangKeluar = BarangKeluar::with(['createdUser', 'details.barang.satuan', 'order'])->findOrFail($id);
     }
 
     public function render()

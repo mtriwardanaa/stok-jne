@@ -176,25 +176,59 @@
         <div class="fixed inset-0 z-50 overflow-y-auto" x-data x-init="document.body.classList.add('overflow-hidden')" x-destroy="document.body.classList.remove('overflow-hidden')">
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div class="fixed inset-0 bg-gray-900/50" wire:click="$set('showApproveModal', false)"></div>
-                <div class="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
+                <div class="relative bg-white rounded-xl shadow-xl max-w-2xl w-full p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Approve Order</h3>
                     
-                    <div class="space-y-4 mb-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Distribusi Sales</label>
-                            <input type="text" wire:model="distribusiSales" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg" placeholder="Opsional">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Qty yang Disetujui</label>
-                            <div class="space-y-2">
-                                @foreach($order->details as $detail)
-                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                        <span class="text-sm text-gray-700">{{ $detail->barang?->nama_barang }}</span>
-                                        <input type="number" wire:model="approvedQty.{{ $detail->id }}" min="0" max="{{ $detail->qty_barang }}" class="w-20 px-2 py-1 border border-gray-300 rounded text-center">
-                                    </div>
-                                @endforeach
-                            </div>
+                    <div class="mb-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Barang</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-gray-700">Request</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-gray-700">Stok</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-gray-700">Disetujui</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    @foreach($order->details as $detail)
+                                        @php
+                                            $currentStock = $detail->barang?->qty_barang ?? 0;
+                                            $maxApprove = min($detail->qty_barang, $currentStock);
+                                        @endphp
+                                        <tr>
+                                            <td class="px-3 py-3">
+                                                <p class="font-medium text-gray-900">{{ $detail->barang?->nama_barang }}</p>
+                                                <p class="text-xs text-gray-500">{{ $detail->barang?->kode_barang }}</p>
+                                            </td>
+                                            <td class="px-3 py-3 text-center font-semibold text-gray-700">
+                                                {{ $detail->qty_barang }}
+                                            </td>
+                                            <td class="px-3 py-3 text-center">
+                                                <span class="badge badge-{{ $detail->barang?->status_color ?? 'gray' }}">
+                                                    {{ $currentStock }}
+                                                </span>
+                                            </td>
+                                            <td class="px-3 py-3 text-center"
+                                                x-data="{ max: {{ $maxApprove }}, value: {{ $approvedQty[$detail->id] ?? $maxApprove }} }">
+                                                <input type="number" 
+                                                       x-model.number="value"
+                                                       x-on:change="value = Math.max(0, Math.min(value, max)); $wire.set('approvedQty.{{ $detail->id }}', value)"
+                                                       x-init="$wire.set('approvedQty.{{ $detail->id }}', Math.min(value, max))"
+                                                       min="0" 
+                                                       :max="max"
+                                                       class="w-24 px-2 py-1.5 border border-gray-300 rounded text-center text-sm"
+                                                       @if($currentStock <= 0) disabled title="Stok habis" @endif>
+                                                @if($currentStock < $detail->qty_barang)
+                                                    <p class="text-xs text-orange-600 mt-1">Max: {{ $maxApprove }}</p>
+                                                @else
+                                                    <p class="text-xs text-gray-400 mt-1">Max: {{ $maxApprove }}</p>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 

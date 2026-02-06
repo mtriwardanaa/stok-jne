@@ -4,6 +4,12 @@
             <h1 class="text-2xl font-bold text-gray-900">Barang Keluar</h1>
             <p class="text-gray-500 mt-1">Riwayat pengeluaran barang</p>
         </div>
+        <a href="{{ route('barang-keluar.create') }}" class="btn-primary">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Tambah Manual
+        </a>
     </div>
 
     <div class="card p-4 mb-6">

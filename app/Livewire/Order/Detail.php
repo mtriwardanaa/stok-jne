@@ -18,16 +18,17 @@ class Detail extends Component
     public $showRejectModal = false;
     public $rejectReason = '';
     public $approvedQty = [];
-    public $distribusiSales = '';
 
     public function mount($id)
     {
-        $this->order = Order::with(['createdUser', 'approvedUser', 'rejectedUser', 'details.barang.satuan', 'department'])
+        $this->order = Order::with(['createdUser', 'approvedUser', 'rejectedUser', 'details.barang.satuan'])
             ->findOrFail($id);
 
-        // Initialize approved quantities
+        // Initialize approved quantities (limited by current stock)
         foreach ($this->order->details as $detail) {
-            $this->approvedQty[$detail->id] = $detail->qty_approved ?? $detail->qty_barang;
+            $currentStock = $detail->barang?->qty_barang ?? 0;
+            $maxQty = min($detail->qty_barang, $currentStock);
+            $this->approvedQty[$detail->id] = $detail->qty_approved ?? $maxQty;
         }
     }
 
@@ -51,17 +52,16 @@ class Detail extends Component
             $barangKeluar = BarangKeluar::create([
                 'no_barang_keluar' => 'NBK-' . date('md') . '-' . $user->id . date('His'),
                 'tanggal' => now(),
-                'id_divisi' => $this->order->id_divisi,
-                'id_kategori' => $this->order->id_kategori,
                 'id_order' => $this->order->id,
                 'nama_user_request' => $this->order->nama_user_request,
-                'distribusi_sales' => $this->distribusiSales,
                 'created_by' => $user->id,
             ]);
 
             // Process each item with FIFO
             foreach ($this->order->details as $detail) {
-                $qtyToDeduct = $this->approvedQty[$detail->id] ?? $detail->qty_barang;
+                $barang = Barang::find($detail->id_barang);
+                $currentStock = $barang->qty_barang ?? 0;
+                $qtyToDeduct = min($this->approvedQty[$detail->id] ?? 0, $currentStock);
 
                 if ($qtyToDeduct <= 0) continue;
 
