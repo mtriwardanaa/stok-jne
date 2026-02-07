@@ -37,6 +37,9 @@
                     <button wire:click="$set('activeTab', 'buat')" class="relative px-4 py-2 rounded-xl text-sm font-bold transition-all {{ $activeTab === 'buat' ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20' : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-200' }}">
                         Buat Opname
                     </button>
+                    <button wire:click="$set('activeTab', 'history')" class="relative px-4 py-2 rounded-xl text-sm font-bold transition-all {{ $activeTab === 'history' ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20' : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-200' }}">
+                        Riwayat Opname
+                    </button>
                     <button wire:click="$set('activeTab', 'report')" class="relative px-4 py-2 rounded-xl text-sm font-bold transition-all {{ $activeTab === 'report' ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20' : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-200' }}">
                         Laporan Stok Opname
                     </button>
@@ -115,6 +118,107 @@
                                 <tr>
                                     <td colspan="4" class="px-6 py-20 text-center">
                                         <p class="text-slate-500">Data barang tidak ditemukan.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
+
+        @if($activeTab === 'history')
+            <!-- History Section -->
+            <div class="bg-white rounded-[1.5rem] border border-slate-200/80 shadow-sm p-6 mb-6">
+                <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <span class="w-1 h-6 bg-amber-500 rounded-full"></span>
+                    Filter Riwayat
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Bulan</label>
+                        <select wire:model.live="month" class="w-full rounded-xl border-slate-200 focus:border-amber-500 focus:ring-amber-500">
+                            @foreach(range(1, 12) as $m)
+                                <option value="{{ $m }}">{{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tahun</label>
+                        <select wire:model.live="year" class="w-full rounded-xl border-slate-200 focus:border-amber-500 focus:ring-amber-500">
+                            @foreach(range(now()->year, now()->year - 3) as $y)
+                                <option value="{{ $y }}">{{ $y }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Table -->
+            <div class="bg-white rounded-[1.5rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/80 border-b border-slate-100">
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider pl-8">Tanggal</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">No Opname</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Barang</th>
+                                <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Stok Sistem</th>
+                                <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Stok Fisik</th>
+                                <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Selisih</th>
+                                <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Tipe</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Oleh</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white">
+                            @forelse($this->opnameHistory as $opname)
+                                <tr class="group hover:bg-slate-50/80 transition-all duration-200">
+                                    <td class="px-6 py-4 pl-8">
+                                        <span class="text-sm font-medium text-slate-700">{{ $opname->tanggal->format('d M Y') }}</span>
+                                        <p class="text-xs text-slate-400">{{ $opname->tanggal->format('H:i') }}</p>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="text-sm font-mono font-semibold text-slate-600">{{ $opname->no_opname }}</span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="text-sm font-semibold text-slate-800">{{ $opname->barang?->nama_barang ?? '-' }}</span>
+                                        <p class="text-xs text-slate-400">{{ $opname->barang?->kode_barang }}</p>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="text-sm font-semibold text-slate-600">{{ $opname->stok_sistem }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="text-sm font-semibold text-slate-600">{{ $opname->stok_fisik }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-bold {{ $opname->selisih > 0 ? 'bg-green-50 text-green-600 border border-green-200' : ($opname->selisih < 0 ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-slate-50 text-slate-500 border border-slate-200') }}">
+                                            {{ $opname->selisih > 0 ? '+' : '' }}{{ $opname->selisih }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold {{ $opname->tipe_adjustment === 'masuk' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : ($opname->tipe_adjustment === 'keluar' ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-slate-50 text-slate-500 border border-slate-200') }}">
+                                            {{ $opname->tipe_label }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="text-sm text-slate-600">{{ $opname->createdUser?->name ?? '-' }}</span>
+                                    </td>
+                                </tr>
+                                <tr class="bg-slate-50/50">
+                                    <td colspan="8" class="px-6 py-3 pl-8">
+                                        <p class="text-xs text-slate-500"><span class="font-semibold">Alasan:</span> {{ $opname->alasan }}</p>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="px-6 py-20 text-center">
+                                        <div class="flex flex-col items-center gap-2">
+                                            <svg class="w-12 h-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                            </svg>
+                                            <p class="text-slate-500">Belum ada riwayat opname pada bulan ini.</p>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforelse

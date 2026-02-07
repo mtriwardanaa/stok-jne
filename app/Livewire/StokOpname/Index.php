@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\StokOpname;
 
 class Index extends Component
 {
@@ -326,5 +327,14 @@ class Index extends Component
         }
         
         return $data;
+    }
+    
+    public function getOpnameHistoryProperty()
+    {
+        return StokOpname::with(['barang', 'createdUser'])
+            ->whereMonth('tanggal', $this->month)
+            ->whereYear('tanggal', $this->year)
+            ->orderBy('tanggal', 'desc')
+            ->get();
     }
 }
