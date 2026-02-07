@@ -8,6 +8,7 @@ use App\Models\BarangKeluar;
 use App\Models\BarangKeluarDetail;
 use App\Models\BarangHarga;
 use App\Models\Barang;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,6 +19,7 @@ class Detail extends Component
     public $showRejectModal = false;
     public $rejectReason = '';
     public $approvedQty = [];
+    public $orderHistory = [];
 
     public function mount($id)
     {
@@ -30,6 +32,52 @@ class Detail extends Component
             $maxQty = min($detail->qty_barang, $currentStock);
             $this->approvedQty[$detail->id] = $detail->qty_approved ?? $maxQty;
         }
+        
+        // Get order history for the same organization in the same month/year
+        $this->orderHistory = $this->getOrderHistory();
+    }
+    
+    private function getOrderHistory()
+    {
+        $orderMonth = $this->order->tanggal->month;
+        $orderYear = $this->order->tanggal->year;
+        
+        // Get the creator's organization info
+        $creator = $this->order->createdUser;
+        if (!$creator) {
+            return collect([]);
+        }
+        
+        // Get user IDs in the same organization (must query SSO database first)
+        $userIdsInSameOrg = [];
+        
+        if ($creator->department_id) {
+            // Internal user - get all users in same department
+            $userIdsInSameOrg = User::where('department_id', $creator->department_id)
+                ->pluck('id')
+                ->toArray();
+        } elseif ($creator->group_id) {
+            // Partner user - get all users in same group
+            $userIdsInSameOrg = User::where('group_id', $creator->group_id)
+                ->pluck('id')
+                ->toArray();
+        } else {
+            // Fallback - just this user
+            $userIdsInSameOrg = [$creator->id];
+        }
+        
+        if (empty($userIdsInSameOrg)) {
+            return collect([]);
+        }
+        
+        // Query orders created by users in the same organization
+        return Order::with(['details.barang', 'createdUser'])
+            ->where('id', '!=', $this->order->id)
+            ->whereIn('created_by', $userIdsInSameOrg)
+            ->whereMonth('tanggal', $orderMonth)
+            ->whereYear('tanggal', $orderYear)
+            ->orderBy('tanggal', 'asc')
+            ->get();
     }
 
     public function openApproveModal()

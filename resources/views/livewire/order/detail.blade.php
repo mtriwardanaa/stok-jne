@@ -99,6 +99,57 @@
 
         <!-- Sidebar -->
         <div class="space-y-6">
+            <!-- Order History Warning -->
+            @if(count($orderHistory) > 0)
+                <div class="card border-2 border-red-200 bg-red-50">
+                    <div class="px-6 py-4 border-b border-red-200 bg-red-100">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <h3 class="font-bold text-red-700">PERINGATAN !!!</h3>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-red-700 font-medium mb-3">
+                            {{ $order->tipe === 'internal' ? 'Divisi' : 'Partner' }} 
+                            <strong>{{ $order->organization_name }}</strong> 
+                            telah melakukan pemesanan sebanyak 
+                            <strong class="text-red-800">{{ count($orderHistory) + 1 }} kali</strong> 
+                            pada bulan <strong>{{ $order->tanggal->translatedFormat('F Y') }}</strong>
+                        </p>
+                        <p class="text-sm text-red-600 font-medium mb-2">Tanggal pemesanan:</p>
+                        <ul class="space-y-2">
+                            @foreach($orderHistory as $history)
+                                <li class="flex items-start gap-2 text-sm">
+                                    <span class="text-red-500">-</span>
+                                    <div>
+                                        <span class="text-gray-700">{{ $history->tanggal->translatedFormat('l, d F Y H:i') }}</span>
+                                        <a href="{{ route('order.detail', $history->id) }}" class="text-blue-600 hover:text-blue-800 hover:underline ml-1">
+                                            (Klik disini untuk melihat detail pemesanan barang)
+                                        </a>
+                                        @if($history->status === 'selesai')
+                                            <span class="inline-flex items-center ml-2 px-1.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">✓ Approved</span>
+                                        @elseif($history->status === 'ditolak')
+                                            <span class="inline-flex items-center ml-2 px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-700 rounded">✗ Ditolak</span>
+                                        @else
+                                            <span class="inline-flex items-center ml-2 px-1.5 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-700 rounded">⏳ Menunggu</span>
+                                        @endif
+                                    </div>
+                                </li>
+                            @endforeach
+                            <li class="flex items-start gap-2 text-sm">
+                                <span class="text-red-500">-</span>
+                                <div>
+                                    <span class="text-gray-900 font-medium">{{ $order->tanggal->translatedFormat('l, d F Y H:i') }}</span>
+                                    <span class="text-gray-500 ml-1">(Order ini)</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            @endif
+
             <!-- Status History -->
             <div class="card">
                 <div class="px-6 py-4 border-b border-gray-100">
