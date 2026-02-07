@@ -30,94 +30,177 @@
                         </div>
                         <p class="text-sm text-slate-500 ml-1">Penyesuaian stok sistem dengan stok fisik.</p>
                     </div>
+                </div>
 
-                    <div class="flex flex-col sm:flex-row gap-4 flex-1 justify-end">
-                        <!-- Search -->
-                        <div class="relative">
-                            <input type="text" wire:model.live.debounce.300ms="search" 
-                                   placeholder="Cari barang..."
-                                   class="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 shadow-sm w-full sm:w-64">
-                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
-                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="flex gap-2">
-                            <button wire:click="openModal" class="group relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 bg-amber-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-600 hover:bg-amber-700 hover:shadow-lg hover:shadow-amber-600/30">
-                                <span class="relative flex items-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    Buat Opname
-                                </span>
-                            </button>
-                            <a href="{{ route('stok-opname.report') }}" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all">
-                                <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                Report
-                            </a>
-                        </div>
-                    </div>
+                <!-- Tab Buttons -->
+                <div class="mt-6 flex flex-wrap gap-2">
+                    <button wire:click="$set('activeTab', 'buat')" class="relative px-4 py-2 rounded-xl text-sm font-bold transition-all {{ $activeTab === 'buat' ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20' : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-200' }}">
+                        Buat Opname
+                    </button>
+                    <button wire:click="$set('activeTab', 'report')" class="relative px-4 py-2 rounded-xl text-sm font-bold transition-all {{ $activeTab === 'report' ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20' : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-200' }}">
+                        Laporan Stok Opname
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Data Table -->
-        <div class="bg-white rounded-[1.5rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
-            <div class="overflow-x-auto">
+        @if($activeTab === 'buat')
+            <!-- Buat Opname Section -->
+            <div class="flex flex-col sm:flex-row gap-4 mb-6 justify-between items-center">
+                <!-- Search -->
+                <div class="relative w-full sm:w-64">
+                    <input type="text" wire:model.live.debounce.300ms="search" 
+                           placeholder="Cari barang..."
+                           class="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 shadow-sm w-full">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <button wire:click="openModal" class="group relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 bg-amber-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-600 hover:bg-amber-700 hover:shadow-lg hover:shadow-amber-600/30">
+                    <span class="relative flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Buat Opname
+                    </span>
+                </button>
+            </div>
+
+            <!-- Data Table -->
+            <div class="bg-white rounded-[1.5rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/80 border-b border-slate-100">
+                                <th class="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider pl-8">Kode</th>
+                                <th class="px-6 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Nama Barang</th>
+                                <th class="px-6 py-5 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Stok Sistem</th>
+                                <th class="px-6 py-5 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white">
+                            @forelse($barangsWithStock as $barang)
+                                <tr class="group hover:bg-slate-50/80 transition-all duration-200">
+                                    <td class="px-6 py-4 pl-8">
+                                        <span class="text-sm font-mono font-semibold text-slate-600">{{ $barang->kode_barang }}</span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="text-sm font-semibold text-slate-800">{{ $barang->nama_barang }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-bold {{ $barang->stok_sistem < 0 ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-blue-50 text-blue-600 border border-blue-200' }}">
+                                            {{ number_format($barang->stok_sistem) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        @if($barang->has_opname_this_month)
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-green-50 text-green-600 border border-green-200">
+                                                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                Sudah Opname
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                                Belum
+                                            </span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="px-6 py-20 text-center">
+                                        <p class="text-slate-500">Data barang tidak ditemukan.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
+
+        @if($activeTab === 'report')
+            <!-- Report Section -->
+            <div class="bg-white rounded-[1.5rem] border border-slate-200/80 shadow-sm p-6 mb-6">
+                <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <span class="w-1 h-6 bg-amber-500 rounded-full"></span>
+                    Parameter Opname
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Bulan</label>
+                        <select wire:model.live="month" class="w-full rounded-xl border-slate-200 focus:border-amber-500 focus:ring-amber-500">
+                            @foreach(range(1, 12) as $m)
+                                <option value="{{ $m }}">{{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tahun</label>
+                        <select wire:model.live="year" class="w-full rounded-xl border-slate-200 focus:border-amber-500 focus:ring-amber-500">
+                            @foreach(range(now()->year, now()->year - 3) as $y)
+                                <option value="{{ $y }}">{{ $y }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Koordinator GA</label>
+                        <input type="text" wire:model="koordinatorGA" class="w-full rounded-xl border-slate-200 focus:border-amber-500 focus:ring-amber-500" placeholder="Nama Koordinator">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Audit Internal</label>
+                        <input type="text" wire:model="auditInternal" class="w-full rounded-xl border-slate-200 focus:border-amber-500 focus:ring-amber-500" placeholder="Nama Auditor">
+                    </div>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button wire:click="printStokOpname" class="inline-flex items-center px-6 py-3 text-sm font-bold text-white bg-slate-900 rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20">
+                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        Print Report
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Table -->
+            <div class="bg-white rounded-[1.5rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden relative fade-in">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50/80 border-b border-slate-100">
-                            <th class="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider pl-8">Kode</th>
-                            <th class="px-6 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Nama Barang</th>
-                            <th class="px-6 py-5 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Stok Sistem</th>
-                            <th class="px-6 py-5 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider pl-8">Kode</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Nama Barang</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Satuan</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Stok Awal</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-emerald-600 uppercase tracking-wider">Masuk</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-rose-600 uppercase tracking-wider">Keluar</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-indigo-600 uppercase tracking-wider bg-indigo-50/50">Stok Akhir</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 bg-white">
-                        @forelse($barangsWithStock as $barang)
-                            <tr class="group hover:bg-slate-50/80 transition-all duration-200">
-                                <td class="px-6 py-4 pl-8">
-                                    <span class="text-sm font-mono font-semibold text-slate-600">{{ $barang->kode_barang }}</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-sm font-semibold text-slate-800">{{ $barang->nama_barang }}</span>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-bold {{ $barang->stok_sistem < 0 ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-blue-50 text-blue-600 border border-blue-200' }}">
-                                        {{ number_format($barang->stok_sistem) }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    @if($barang->has_opname_this_month)
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-green-50 text-green-600 border border-green-200">
-                                            <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                            </svg>
-                                            Sudah Opname
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
-                                            Belum
-                                        </span>
-                                    @endif
-                                </td>
+                        @forelse($opnameData as $item)
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="px-6 py-4 pl-8 font-mono text-xs text-slate-500">{{ $item['kode'] }}</td>
+                                <td class="px-6 py-4 font-bold text-slate-800">{{ $item['nama'] }}</td>
+                                <td class="px-6 py-4 text-center text-slate-600 text-sm">{{ $item['satuan'] }}</td>
+                                <td class="px-6 py-4 text-center font-medium text-slate-600">{{ $item['stok_awal'] }}</td>
+                                <td class="px-6 py-4 text-center text-emerald-600 font-bold bg-emerald-50/30">{{ $item['masuk'] > 0 ? '+' . $item['masuk'] : '-' }}</td>
+                                <td class="px-6 py-4 text-center text-rose-600 font-bold bg-rose-50/30">{{ $item['keluar'] > 0 ? '-' . $item['keluar'] : '-' }}</td>
+                                <td class="px-6 py-4 text-center font-bold text-indigo-700 bg-indigo-50/50">{{ $item['stok_akhir'] }}</td>
                             </tr>
                         @empty
-                            <tr>
-                                <td colspan="4" class="px-6 py-20 text-center">
-                                    <p class="text-slate-500">Data barang tidak ditemukan.</p>
-                                </td>
-                            </tr>
+                            <tr><td colspan="7" class="px-6 py-12 text-center text-slate-500">Tidak ada data stok opname</td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-        </div>
+        @endif
     </div>
 
     <!-- Modal Form Stock Opname -->

@@ -4,47 +4,29 @@ namespace App\Livewire\Report;
 
 use Livewire\Component;
 use App\Models\Barang;
-use App\Models\BarangMasuk;
 use App\Models\BarangKeluar;
-use App\Models\Order;
 use App\Models\Department;
 use App\Models\Group;
-use Illuminate\Support\Facades\DB;
 
 class Index extends Component
 {
-    public $month;
-    public $year;
-    public $reportType = 'stock';
+    public $dateFrom;
+    public $dateTo;
     
     // Summary Report filters
     public $summaryFilter = 'all'; // all, divisi, partner
-    public $dateFrom;
-    public $dateTo;
     public $selectedDivisi = '';
     public $selectedPartner = '';
     public $selectedBarang = '';
-    
-    // Stock Opname fields
-    public $koordinatorGA = '';
-    public $auditInternal = '';
 
     public function mount()
     {
-        $this->month = now()->month;
-        $this->year = now()->year;
         $this->dateFrom = now()->startOfMonth()->format('Y-m-d');
         $this->dateTo = now()->format('Y-m-d');
-    }
-
-    public function exportExcel()
-    {
-        session()->flash('info', 'Fitur export Excel akan segera tersedia.');
     }
     
     public function printSummaryReport()
     {
-        // Generate print view URL with parameters
         $params = http_build_query([
             'dateFrom' => $this->dateFrom,
             'dateTo' => $this->dateTo,
@@ -55,18 +37,6 @@ class Index extends Component
         ]);
         
         return $this->redirect(route('report.print-summary') . '?' . $params, navigate: false);
-    }
-    
-    public function printStokOpname()
-    {
-        $params = http_build_query([
-            'month' => $this->month,
-            'year' => $this->year,
-            'koordinator' => $this->koordinatorGA,
-            'auditor' => $this->auditInternal,
-        ]);
-        
-        return $this->redirect(route('report.print-opname') . '?' . $params, navigate: false);
     }
     
     public function updatedSummaryFilter()
@@ -82,38 +52,11 @@ class Index extends Component
             'departments' => Department::orderBy('name')->get(),
             'groups' => Group::orderBy('name')->get(),
             'barangList' => Barang::orderBy('nama_barang')->get(),
+            'summaryData' => $this->getSummaryData(),
         ];
 
-        if ($this->reportType === 'stock') {
-            $data['items'] = Barang::with('satuan')
-                ->orderBy('nama_barang')
-                ->get();
-        } elseif ($this->reportType === 'masuk') {
-            $data['items'] = BarangMasuk::with(['details.barang', 'createdUser'])
-                ->whereMonth('tanggal', $this->month)
-                ->whereYear('tanggal', $this->year)
-                ->latest('tanggal')
-                ->get();
-        } elseif ($this->reportType === 'keluar') {
-            $data['items'] = BarangKeluar::with(['details.barang', 'createdUser', 'order'])
-                ->whereMonth('tanggal', $this->month)
-                ->whereYear('tanggal', $this->year)
-                ->latest('tanggal')
-                ->get();
-        } elseif ($this->reportType === 'order') {
-            $data['items'] = Order::with(['details.barang', 'createdUser'])
-                ->whereMonth('tanggal', $this->month)
-                ->whereYear('tanggal', $this->year)
-                ->latest('tanggal')
-                ->get();
-        } elseif ($this->reportType === 'summary') {
-            $data['summaryData'] = $this->getSummaryData();
-        } elseif ($this->reportType === 'opname') {
-            $data['opnameData'] = $this->getStokOpnameData();
-        }
-
         return view('livewire.report.index', $data)
-            ->layout('components.layouts.app', ['title' => 'Laporan']);
+            ->layout('components.layouts.app', ['title' => 'Summary Pengeluaran']);
     }
     
     private function getSummaryData()
@@ -205,44 +148,5 @@ class Index extends Component
             'total_qty' => $totalQty,
             'total_nilai' => $totalNilai,
         ];
-    }
-    
-    private function getStokOpnameData()
-    {
-        $barangs = Barang::with('satuan')->orderBy('nama_barang')->get();
-        
-        $data = [];
-        foreach ($barangs as $barang) {
-            $stokMasuk = DB::table('stok_barang_masuk_detail')
-                ->join('stok_barang_masuk', 'stok_barang_masuk.id', '=', 'stok_barang_masuk_detail.id_barang_masuk')
-                ->where('stok_barang_masuk_detail.id_barang', $barang->id)
-                ->whereMonth('stok_barang_masuk.tanggal', $this->month)
-                ->whereYear('stok_barang_masuk.tanggal', $this->year)
-                ->whereNull('stok_barang_masuk.deleted_at')
-                ->sum('stok_barang_masuk_detail.qty_barang');
-                
-            $stokKeluar = DB::table('stok_barang_keluar_detail')
-                ->join('stok_barang_keluar', 'stok_barang_keluar.id', '=', 'stok_barang_keluar_detail.id_barang_keluar')
-                ->where('stok_barang_keluar_detail.id_barang', $barang->id)
-                ->whereMonth('stok_barang_keluar.tanggal', $this->month)
-                ->whereYear('stok_barang_keluar.tanggal', $this->year)
-                ->whereNull('stok_barang_keluar.deleted_at')
-                ->sum('stok_barang_keluar_detail.qty_barang');
-            
-            $stokAkhir = $barang->qty_barang;
-            $stokAwal = $stokAkhir - $stokMasuk + $stokKeluar;
-            
-            $data[] = [
-                'kode' => $barang->kode_barang,
-                'nama' => $barang->nama_barang,
-                'satuan' => $barang->satuan?->nama_satuan ?? '-',
-                'stok_awal' => $stokAwal,
-                'masuk' => $stokMasuk,
-                'keluar' => $stokKeluar,
-                'stok_akhir' => $stokAkhir,
-            ];
-        }
-        
-        return $data;
     }
 }

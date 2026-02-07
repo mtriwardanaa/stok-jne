@@ -15,6 +15,14 @@ class Index extends Component
     public $search = '';
     public $showModal = false;
     
+    // Tab view: 'buat' for create opname, 'report' for opname report
+    public $activeTab = 'buat';
+    
+    // Report filters
+    public $month;
+    public $year;
+    public $koordinatorGA = '';
+    public $auditInternal = '';
     // Form fields
     public $selectedBarang = null;
     public $stokSistem = 0;
@@ -43,6 +51,24 @@ class Index extends Component
         'fotoBukti.image' => 'File harus berupa gambar',
         'fotoBukti.max' => 'Ukuran file maksimal 2MB',
     ];
+
+    public function mount()
+    {
+        $this->month = now()->month;
+        $this->year = now()->year;
+    }
+
+    public function printStokOpname()
+    {
+        $params = http_build_query([
+            'month' => $this->month,
+            'year' => $this->year,
+            'koordinator' => $this->koordinatorGA,
+            'auditor' => $this->auditInternal,
+        ]);
+        
+        return $this->redirect(route('report.print-opname') . '?' . $params, navigate: false);
+    }
 
     public function updatedSelectedBarang($value)
     {
@@ -240,10 +266,65 @@ class Index extends Component
         });
 
         $allBarangs = DB::table('stok_barang')->orderBy('nama_barang')->get();
+        
+        // Get opname report data if on report tab
+        $opnameData = $this->activeTab === 'report' ? $this->getStokOpnameData() : [];
 
         return view('livewire.stok-opname.index', [
             'barangsWithStock' => $barangsWithStock,
             'allBarangs' => $allBarangs,
+            'opnameData' => $opnameData,
         ])->layout('components.layouts.app', ['title' => 'Stock Opname']);
+    }
+    
+    private function getStokOpnameData()
+    {
+        $barangs = DB::table('stok_barang')
+            ->leftJoin('stok_barang_satuan', 'stok_barang.id_barang_satuan', '=', 'stok_barang_satuan.id')
+            ->select('stok_barang.*', 'stok_barang_satuan.nama_satuan')
+            ->orderBy('stok_barang.nama_barang')
+            ->get();
+        
+        $data = [];
+        foreach ($barangs as $barang) {
+            $stokMasuk = DB::table('stok_barang_masuk_detail')
+                ->join('stok_barang_masuk', 'stok_barang_masuk.id', '=', 'stok_barang_masuk_detail.id_barang_masuk')
+                ->where('stok_barang_masuk_detail.id_barang', $barang->id)
+                ->whereMonth('stok_barang_masuk.tanggal', $this->month)
+                ->whereYear('stok_barang_masuk.tanggal', $this->year)
+                ->whereNull('stok_barang_masuk.deleted_at')
+                ->sum('stok_barang_masuk_detail.qty_barang');
+                
+            $stokKeluar = DB::table('stok_barang_keluar_detail')
+                ->join('stok_barang_keluar', 'stok_barang_keluar.id', '=', 'stok_barang_keluar_detail.id_barang_keluar')
+                ->where('stok_barang_keluar_detail.id_barang', $barang->id)
+                ->whereMonth('stok_barang_keluar.tanggal', $this->month)
+                ->whereYear('stok_barang_keluar.tanggal', $this->year)
+                ->whereNull('stok_barang_keluar.deleted_at')
+                ->sum('stok_barang_keluar_detail.qty_barang');
+            
+            // Calculate total stock up to end of selected month
+            $totalMasuk = DB::table('stok_barang_masuk_detail')
+                ->where('id_barang', $barang->id)
+                ->sum('qty_barang');
+            $totalKeluar = DB::table('stok_barang_keluar_detail')
+                ->where('id_barang', $barang->id)
+                ->sum('qty_barang');
+            
+            $stokAkhir = $totalMasuk - $totalKeluar;
+            $stokAwal = $stokAkhir - $stokMasuk + $stokKeluar;
+            
+            $data[] = [
+                'kode' => $barang->kode_barang,
+                'nama' => $barang->nama_barang,
+                'satuan' => $barang->nama_satuan ?? '-',
+                'stok_awal' => $stokAwal,
+                'masuk' => $stokMasuk,
+                'keluar' => $stokKeluar,
+                'stok_akhir' => $stokAkhir,
+            ];
+        }
+        
+        return $data;
     }
 }
