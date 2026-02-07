@@ -15,7 +15,7 @@ class MigrateStep2Master extends Command
     public function handle()
     {
         $dryRun = $this->option('dry-run');
-        $truncate = $this->option('truncate');
+        $truncate = true;
         
         $this->info('===========================================');
         $this->info('STEP 2: MASTER DATA MIGRATION');

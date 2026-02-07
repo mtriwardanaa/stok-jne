@@ -18,8 +18,8 @@ class MigrateStep4BarangKeluar extends Command
     public function handle()
     {
         $dryRun = $this->option('dry-run');
-        $truncate = $this->option('truncate');
-        $withUserMapping = $this->option('with-user-mapping');
+        $truncate = true;
+        $withUserMapping = true;
         
         $this->info('===========================================');
         $this->info('STEP 4: BARANG KELUAR & ORDER MIGRATION');

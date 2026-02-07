@@ -18,8 +18,8 @@ class MigrateStep3BarangMasuk extends Command
     public function handle()
     {
         $dryRun = $this->option('dry-run');
-        $truncate = $this->option('truncate');
-        $withUserMapping = $this->option('with-user-mapping');
+        $truncate = true;
+        $withUserMapping = true;
         
         $this->info('===========================================');
         $this->info('STEP 3: BARANG MASUK MIGRATION');

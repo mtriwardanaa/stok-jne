@@ -14,7 +14,7 @@ class MigrateStep1Users extends Command
 
     protected $description = 'Step 1: Restore SSO, migrate master data, and create missing users';
 
-    protected array $partnerDivisiIds = [7, 8, 9, 13, 23];
+    protected array $partnerDivisiIds = [7, 8, 9, 13, 23, 29];
     protected array $userMapping = []; // old_id => new_id
     protected array $divisiToDeptMap = []; // old divisi_id => sso department_id
     protected array $namaToGroupMap = []; // nama => sso group_id
@@ -159,6 +159,7 @@ class MigrateStep1Users extends Command
             9 => 'KANTOR PERWAKILAN',   // KP ENTIKONG
             13 => 'AGEN HYBRID',        // AGEN HYBRID
             23 => 'CABANG / SUB AGEN',  // SUB AGEN / CABANG
+            29 => 'CUSTOMER CORPORATE', // CUSTOMER CORPORATE
         ];
 
         // 1. Departments (internal divisi - NOT partner)
