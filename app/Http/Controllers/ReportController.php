@@ -117,8 +117,8 @@ class ReportController extends Controller
     
     public function printOpname(Request $request)
     {
-        $month = $request->get('month', now()->month);
-        $year = $request->get('year', now()->year);
+        $month = (int) ($request->get('month') ?: now()->month);
+        $year = (int) ($request->get('year') ?: now()->year);
         $koordinator = $request->get('koordinator', '');
         $auditor = $request->get('auditor', '');
         
