@@ -497,6 +497,8 @@
             padding: 12px;
         }
     </style>
+    
+    @stack('scripts')
 </body>
 </html>
 
