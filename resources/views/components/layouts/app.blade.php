@@ -463,7 +463,7 @@
             </header>
 
             <!-- Page content -->
-            <main class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+            <main class="p-4 sm:p-6 lg:p-8 w-full">
                 {{ $slot }}
             </main>
         </div>
