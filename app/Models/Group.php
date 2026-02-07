@@ -14,6 +14,8 @@ use Carbon\Carbon;
  * @property string $region_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property Partner $partner
+ * @property Region $region
  *
  * @package App\Models
  */
