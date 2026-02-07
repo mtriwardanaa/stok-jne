@@ -13,6 +13,9 @@ use App\Livewire\BarangKeluar\Create as BarangKeluarCreate;
 use App\Livewire\BarangKeluar\Detail as BarangKeluarDetail;
 use App\Livewire\Supplier\Index as SupplierIndex;
 use App\Livewire\Report\Index as ReportIndex;
+use App\Livewire\StokOpname\Index as StokOpnameIndex;
+use App\Livewire\StokOpname\Report as StokOpnameReport;
+
 
 // Public routes
 Route::get('/login', function () {
@@ -79,4 +82,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report', ReportIndex::class)->name('report.index');
     Route::get('/report/print-summary', [App\Http\Controllers\ReportController::class, 'printSummary'])->name('report.print-summary');
     Route::get('/report/print-opname', [App\Http\Controllers\ReportController::class, 'printOpname'])->name('report.print-opname');
+
+    // Stock Opname
+    Route::get('/stok-opname', StokOpnameIndex::class)->name('stok-opname');
+    Route::get('/stok-opname/report', StokOpnameReport::class)->name('stok-opname.report');
 });
