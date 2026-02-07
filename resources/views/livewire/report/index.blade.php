@@ -16,9 +16,9 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             </div>
-                            <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Summary Pengeluaran</h2>
+                            <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Laporan Pengeluaran</h2>
                         </div>
-                        <p class="text-sm text-slate-500 ml-1">Rekapitulasi pengeluaran barang per divisi/partner.</p>
+                        <p class="text-sm text-slate-500 ml-1">Rekapitulasi pengeluaran barang.</p>
                     </div>
                 </div>
             </div>
@@ -67,11 +67,6 @@
                         <div class="relative">
                             <input type="date" wire:model.live="dateFrom" 
                                    class="w-full pl-4 pr-10 py-3 bg-white/80 backdrop-blur-sm border-2 border-slate-200/80 rounded-xl text-sm font-medium text-slate-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all hover:border-slate-300 shadow-sm">
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            </div>
                         </div>
                     </div>
                     
@@ -86,11 +81,6 @@
                         <div class="relative">
                             <input type="date" wire:model.live="dateTo" 
                                    class="w-full pl-4 pr-10 py-3 bg-white/80 backdrop-blur-sm border-2 border-slate-200/80 rounded-xl text-sm font-medium text-slate-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all hover:border-slate-300 shadow-sm">
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            </div>
                         </div>
                     </div>
                     
@@ -176,58 +166,60 @@
         </div>
 
         <!-- Result Table -->
-        @if(!empty($summaryData['grouped']))
+        @if(!empty($summaryData['data']))
             <div class="bg-white rounded-[1.5rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden relative fade-in">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gradient-to-r from-slate-50 to-slate-100/80 border-b border-slate-200">
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider pl-8">Divisi/Partner</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Barang</th>
-                            <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Qty</th>
-                            <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider pr-8">Nilai</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white">
-                        @foreach($summaryData['grouped'] as $org)
-                            @foreach($org['items'] as $item)
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gradient-to-r from-slate-50 to-slate-100/80 border-b border-slate-200">
+                                <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-12">No</th>
+                                <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Tgl Keluar</th>
+                                <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">No BK</th>
+                                <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Kode</th>
+                                <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Nama Barang</th>
+                                <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Sat</th>
+                                <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Qty</th>
+                                <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Harga</th>
+                                <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Nilai</th>
+                                <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Penerima</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white">
+                            @foreach($summaryData['data'] as $index => $item)
                                 <tr class="hover:bg-slate-50/80 transition-colors">
-                                    @if($loop->first)
-                                        <td class="px-6 py-4 pl-8 align-top bg-gradient-to-r from-slate-50/50 to-transparent" rowspan="{{ count($org['items']) + 1 }}">
-                                            <div class="font-bold text-slate-800">{{ $org['name'] }}</div>
-                                            <div class="text-xs text-slate-500 mt-1 inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200">
-                                                @if($org['type'] === 'partner')
-                                                    <span class="mr-1">🤝</span> Partner
-                                                @else
-                                                    <span class="mr-1">🏛️</span> Divisi
-                                                @endif
-                                            </div>
-                                        </td>
-                                    @endif
-                                    <td class="px-6 py-4 text-slate-600 font-medium">{{ $item['nama'] }}</td>
-                                    <td class="px-6 py-4 text-center text-slate-700 font-bold bg-slate-50/50">{{ $item['qty'] }}</td>
-                                    <td class="px-6 py-4 text-right text-slate-700 font-mono pr-8">Rp {{ number_format($item['nilai'], 0, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-center text-sm text-slate-500">{{ $index + 1 }}</td>
+                                    <td class="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">{{ \Carbon\Carbon::parse($item['tanggal_keluar'])->format('d/m/Y') }}</td>
+                                    <td class="px-4 py-3 text-sm font-mono text-slate-600">{{ $item['no_barang_keluar'] }}</td>
+                                    <td class="px-4 py-3 text-sm font-mono text-slate-500">{{ $item['kode_barang'] }}</td>
+                                    <td class="px-4 py-3 text-sm font-semibold text-slate-800">{{ $item['nama_barang'] }}</td>
+                                    <td class="px-4 py-3 text-sm text-slate-600 text-center">{{ $item['satuan'] }}</td>
+                                    <td class="px-4 py-3 text-sm font-bold text-center">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
+                                            {{ $item['qty'] }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-slate-600 text-right font-mono">{{ number_format($item['harga'], 0, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-sm font-semibold text-right font-mono text-slate-800">{{ number_format($item['nilai'], 0, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-sm text-slate-600">{{ $item['penerima'] }}</td>
                                 </tr>
                             @endforeach
-                            <tr class="bg-gradient-to-r from-slate-100 to-slate-50 font-bold border-t-2 border-slate-200">
-                                <td class="px-6 py-3 text-slate-800 text-right" colspan="2">Subtotal {{ $org['name'] }}</td>
-                                <td class="px-6 py-3 text-center text-indigo-600 bg-indigo-50/50">{{ $org['total_qty'] }}</td>
-                                <td class="px-6 py-3 text-right text-indigo-600 bg-indigo-50/50 font-mono pr-8">Rp {{ number_format($org['total_nilai'], 0, ',', '.') }}</td>
+                            <tr class="bg-gradient-to-r from-slate-900 to-slate-800 text-white font-bold">
+                                <td class="px-4 py-4" colspan="6">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                        </svg>
+                                        TOTAL ({{ count($summaryData['data']) }} transaksi)
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-center">{{ $summaryData['total_qty'] }}</td>
+                                <td class="px-4 py-4"></td>
+                                <td class="px-4 py-4 text-right font-mono">Rp {{ number_format($summaryData['total_nilai'], 0, ',', '.') }}</td>
+                                <td class="px-4 py-4"></td>
                             </tr>
-                        @endforeach
-                        <tr class="bg-gradient-to-r from-slate-900 to-slate-800 text-white font-bold text-lg">
-                            <td class="px-6 py-5 pl-8" colspan="2">
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                    </svg>
-                                    GRAND TOTAL
-                                </div>
-                            </td>
-                            <td class="px-6 py-5 text-center bg-slate-800">{{ $summaryData['total_qty'] }}</td>
-                            <td class="px-6 py-5 text-right bg-slate-800 font-mono pr-8">Rp {{ number_format($summaryData['total_nilai'], 0, ',', '.') }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         @else
             <div class="rounded-[1.5rem] border-2 border-dashed border-slate-300 p-16 text-center bg-gradient-to-br from-slate-50 to-white">
@@ -238,7 +230,7 @@
                         </svg>
                     </div>
                     <p class="font-semibold text-slate-600 mb-1">Tidak ada data</p>
-                    <p class="text-sm text-slate-500">Tidak ada data summary untuk filter yang dipilih</p>
+                    <p class="text-sm text-slate-500">Tidak ada data pengeluaran untuk filter yang dipilih</p>
                 </div>
             </div>
         @endif

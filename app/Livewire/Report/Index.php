@@ -61,8 +61,10 @@ class Index extends Component
     
     private function getSummaryData()
     {
-        $query = BarangKeluar::with(['details.barang', 'requestUser.department', 'requestUser.group', 'order'])
-            ->whereBetween('tanggal', [$this->dateFrom, $this->dateTo]);
+        $query = BarangKeluar::with(['details.barang.satuan', 'requestUser.department', 'requestUser.group', 'order', 'createdUser'])
+            ->whereBetween('tanggal', [$this->dateFrom, $this->dateTo])
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('id', 'asc');
             
         if ($this->selectedBarang) {
             $query->whereHas('details', function($q) {
@@ -72,7 +74,7 @@ class Index extends Component
         
         $barangKeluars = $query->get();
         
-        $grouped = [];
+        $data = [];
         $totalQty = 0;
         $totalNilai = 0;
         
@@ -83,22 +85,21 @@ class Index extends Component
                 }
                 
                 // Determine organization
-                $orgName = '-';
+                $penerima = '-';
                 $orgType = 'unknown';
                 $orgId = null;
                 
                 if ($bk->requestUser) {
+                    $penerima = $bk->requestUser->name;
                     if ($bk->requestUser->department) {
-                        $orgName = $bk->requestUser->department->name;
                         $orgType = 'divisi';
                         $orgId = $bk->requestUser->department->id;
                     } elseif ($bk->requestUser->group) {
-                        $orgName = $bk->requestUser->group->name;
                         $orgType = 'partner';
                         $orgId = $bk->requestUser->group->id;
                     }
                 } elseif ($bk->order) {
-                    $orgName = $bk->order->organization_name;
+                    $penerima = $bk->order->organization_name;
                     $orgType = $bk->order->tipe === 'eksternal' ? 'partner' : 'divisi';
                 }
                 
@@ -110,41 +111,30 @@ class Index extends Component
                     if ($orgType !== 'partner') continue;
                     if ($this->selectedPartner && $orgId != $this->selectedPartner) continue;
                 }
-                // 'all' filter shows everything
                 
-                if (!isset($grouped[$orgName])) {
-                    $grouped[$orgName] = [
-                        'name' => $orgName,
-                        'type' => $orgType,
-                        'items' => [],
-                        'total_qty' => 0,
-                        'total_nilai' => 0,
-                    ];
-                }
-                
-                $barangName = $detail->barang->nama_barang ?? 'Unknown';
                 $harga = $detail->barang->harga_barang ?? 0;
                 $nilai = $detail->qty_barang * $harga;
                 
-                if (!isset($grouped[$orgName]['items'][$barangName])) {
-                    $grouped[$orgName]['items'][$barangName] = [
-                        'nama' => $barangName,
-                        'qty' => 0,
-                        'nilai' => 0,
-                    ];
-                }
+                $data[] = [
+                    'tanggal_keluar' => $bk->tanggal,
+                    'no_barang_keluar' => $bk->no_barang_keluar,
+                    'kode_barang' => $detail->barang->kode_barang ?? '-',
+                    'nama_barang' => $detail->barang->nama_barang ?? '-',
+                    'satuan' => $detail->barang->satuan->nama_satuan ?? '-',
+                    'qty' => $detail->qty_barang,
+                    'harga' => $harga,
+                    'nilai' => $nilai,
+                    'penerima' => $penerima,
+                    'tanggal_request' => $bk->order?->tanggal_order ?? $bk->tanggal,
+                ];
                 
-                $grouped[$orgName]['items'][$barangName]['qty'] += $detail->qty_barang;
-                $grouped[$orgName]['items'][$barangName]['nilai'] += $nilai;
-                $grouped[$orgName]['total_qty'] += $detail->qty_barang;
-                $grouped[$orgName]['total_nilai'] += $nilai;
                 $totalQty += $detail->qty_barang;
                 $totalNilai += $nilai;
             }
         }
         
         return [
-            'grouped' => $grouped,
+            'data' => $data,
             'total_qty' => $totalQty,
             'total_nilai' => $totalNilai,
         ];

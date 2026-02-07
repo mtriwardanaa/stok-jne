@@ -20,8 +20,10 @@ class ReportController extends Controller
         $selectedPartner = $request->get('partner', '');
         $selectedBarang = $request->get('barang', '');
         
-        $query = BarangKeluar::with(['details.barang', 'requestUser.department', 'requestUser.group', 'order'])
-            ->whereBetween('tanggal', [$dateFrom, $dateTo]);
+        $query = BarangKeluar::with(['details.barang.satuan', 'requestUser.department', 'requestUser.group', 'order', 'createdUser'])
+            ->whereBetween('tanggal', [$dateFrom, $dateTo])
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('id', 'asc');
             
         if ($selectedBarang) {
             $query->whereHas('details', function($q) use ($selectedBarang) {
@@ -31,7 +33,7 @@ class ReportController extends Controller
         
         $barangKeluars = $query->get();
         
-        $grouped = [];
+        $data = [];
         $totalQty = 0;
         $totalNilai = 0;
         
@@ -41,25 +43,26 @@ class ReportController extends Controller
                     continue;
                 }
                 
-                $orgName = '-';
+                // Determine organization
+                $penerima = '-';
                 $orgType = 'unknown';
                 $orgId = null;
                 
                 if ($bk->requestUser) {
+                    $penerima = $bk->requestUser->name;
                     if ($bk->requestUser->department) {
-                        $orgName = $bk->requestUser->department->name;
                         $orgType = 'divisi';
                         $orgId = $bk->requestUser->department->id;
                     } elseif ($bk->requestUser->group) {
-                        $orgName = $bk->requestUser->group->name;
                         $orgType = 'partner';
                         $orgId = $bk->requestUser->group->id;
                     }
                 } elseif ($bk->order) {
-                    $orgName = $bk->order->organization_name;
+                    $penerima = $bk->order->organization_name;
                     $orgType = $bk->order->tipe === 'eksternal' ? 'partner' : 'divisi';
                 }
                 
+                // Apply filter
                 if ($filter === 'divisi') {
                     if ($orgType !== 'divisi') continue;
                     if ($selectedDivisi && $orgId != $selectedDivisi) continue;
@@ -68,32 +71,23 @@ class ReportController extends Controller
                     if ($selectedPartner && $orgId != $selectedPartner) continue;
                 }
                 
-                if (!isset($grouped[$orgName])) {
-                    $grouped[$orgName] = [
-                        'name' => $orgName,
-                        'type' => $orgType,
-                        'items' => [],
-                        'total_qty' => 0,
-                        'total_nilai' => 0,
-                    ];
-                }
-                
-                $barangName = $detail->barang->nama_barang ?? 'Unknown';
                 $harga = $detail->barang->harga_barang ?? 0;
                 $nilai = $detail->qty_barang * $harga;
                 
-                if (!isset($grouped[$orgName]['items'][$barangName])) {
-                    $grouped[$orgName]['items'][$barangName] = [
-                        'nama' => $barangName,
-                        'qty' => 0,
-                        'nilai' => 0,
-                    ];
-                }
+                $data[] = [
+                    'tanggal_keluar' => $bk->tanggal,
+                    'no_barang_keluar' => $bk->no_barang_keluar,
+                    'kode_barang' => $detail->barang->kode_barang ?? '-',
+                    'nama_barang' => $detail->barang->nama_barang ?? '-',
+                    'satuan' => $detail->barang->satuan->nama_satuan ?? '-',
+                    'qty' => $detail->qty_barang,
+                    'harga' => $harga,
+                    'nilai' => $nilai,
+                    'penerima' => $penerima,
+                    'tanggal_request' => $bk->order?->tanggal_order ?? $bk->tanggal,
+                    'created_by' => $bk->createdBy?->name ?? '-',
+                ];
                 
-                $grouped[$orgName]['items'][$barangName]['qty'] += $detail->qty_barang;
-                $grouped[$orgName]['items'][$barangName]['nilai'] += $nilai;
-                $grouped[$orgName]['total_qty'] += $detail->qty_barang;
-                $grouped[$orgName]['total_nilai'] += $nilai;
                 $totalQty += $detail->qty_barang;
                 $totalNilai += $nilai;
             }
@@ -106,7 +100,7 @@ class ReportController extends Controller
         };
         
         return view('pdf.report-summary', [
-            'grouped' => $grouped,
+            'data' => $data,
             'totalQty' => $totalQty,
             'totalNilai' => $totalNilai,
             'dateFrom' => $dateFrom,
