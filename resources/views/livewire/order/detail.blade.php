@@ -125,9 +125,9 @@
                                     <span class="text-red-500">-</span>
                                     <div>
                                         <span class="text-gray-700">{{ $history->tanggal->translatedFormat('l, d F Y H:i') }}</span>
-                                        <a href="{{ route('order.detail', $history->id) }}" class="text-blue-600 hover:text-blue-800 hover:underline ml-1">
+                                        <button wire:click="openHistoryModal({{ $history->id }})" class="text-blue-600 hover:text-blue-800 hover:underline ml-1 cursor-pointer">
                                             (Klik disini untuk melihat detail pemesanan barang)
-                                        </a>
+                                        </button>
                                         @if($history->status === 'selesai')
                                             <span class="inline-flex items-center ml-2 px-1.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">✓ Approved</span>
                                         @elseif($history->status === 'ditolak')
@@ -309,6 +309,76 @@
                     <div class="flex gap-3">
                         <button wire:click="$set('showRejectModal', false)" class="flex-1 btn-secondary">Batal</button>
                         <button wire:click="reject" class="flex-1 btn-primary bg-red-600 hover:bg-red-700">Tolak</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- History Order Modal -->
+    @if($showHistoryModal && $historyOrder)
+        <div class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex items-center justify-center min-h-screen px-4">
+                <div class="fixed inset-0 bg-gray-900/50" wire:click="$set('showHistoryModal', false)"></div>
+                <div class="relative bg-white rounded-xl shadow-xl max-w-3xl w-full p-6 max-h-[90vh] overflow-y-auto">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Detail Order: {{ $historyOrder->no_order }}</h3>
+                            <p class="text-sm text-gray-500">{{ $historyOrder->tanggal->translatedFormat('l, d F Y H:i') }}</p>
+                        </div>
+                        <span class="badge badge-{{ $historyOrder->status_color }}">{{ $historyOrder->status_label }}</span>
+                    </div>
+                    
+                    <!-- Order Info -->
+                    <div class="grid grid-cols-2 gap-4 mb-6 bg-gray-50 rounded-lg p-4">
+                        <div>
+                            <p class="text-xs text-gray-500">Pemohon</p>
+                            <p class="font-medium text-gray-900">{{ $historyOrder->nama_user_request ?? $historyOrder->createdUser?->name ?? '-' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Organisasi</p>
+                            <p class="font-medium text-gray-900">{{ $historyOrder->organization_name }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Items -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Item yang Dipesan:</h4>
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Barang</th>
+                                    <th class="px-3 py-2 text-center font-semibold text-gray-700">Qty Request</th>
+                                    @if($historyOrder->status === 'selesai')
+                                        <th class="px-3 py-2 text-center font-semibold text-gray-700">Qty Approved</th>
+                                    @endif
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                @foreach($historyOrder->details as $detail)
+                                    <tr>
+                                        <td class="px-3 py-3">
+                                            <p class="font-medium text-gray-900">{{ $detail->barang?->nama_barang ?? '-' }}</p>
+                                            <p class="text-xs text-gray-500">{{ $detail->barang?->kode_barang }} · {{ $detail->barang?->satuan?->nama_satuan }}</p>
+                                        </td>
+                                        <td class="px-3 py-3 text-center font-semibold text-gray-700">
+                                            {{ $detail->qty_barang }}
+                                        </td>
+                                        @if($historyOrder->status === 'selesai')
+                                            <td class="px-3 py-3 text-center font-semibold text-green-600">
+                                                {{ $detail->qty_approved ?? '-' }}
+                                            </td>
+                                        @endif
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button wire:click="$set('showHistoryModal', false)" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors">
+                            Tutup
+                        </button>
                     </div>
                 </div>
             </div>

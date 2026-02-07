@@ -17,9 +17,11 @@ class Detail extends Component
     public Order $order;
     public $showApproveModal = false;
     public $showRejectModal = false;
+    public $showHistoryModal = false;
     public $rejectReason = '';
     public $approvedQty = [];
     public $orderHistory = [];
+    public $historyOrder = null;
 
     public function mount($id)
     {
@@ -88,6 +90,13 @@ class Detail extends Component
     public function openRejectModal()
     {
         $this->showRejectModal = true;
+    }
+    
+    public function openHistoryModal($orderId)
+    {
+        $this->historyOrder = Order::with(['createdUser', 'details.barang.satuan'])
+            ->find($orderId);
+        $this->showHistoryModal = true;
     }
 
     public function approve()
