@@ -21,7 +21,8 @@ const user = computed(() => page.props.auth?.user)
 
 const isActive = (routeName) => {
     if (routeName === '') return page.url === '/'
-    return page.url.startsWith('/' + routeName)
+    const path = '/' + routeName
+    return page.url === path || page.url.startsWith(path + '/') || page.url.startsWith(path + '?')
 }
 
 const menuItems = [
@@ -43,7 +44,7 @@ const managementItems = [
 </script>
 
 <template>
-    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 overflow-x-hidden">
         <!-- Mobile sidebar backdrop -->
         <Transition
             enter-active-class="transition-opacity duration-300"
