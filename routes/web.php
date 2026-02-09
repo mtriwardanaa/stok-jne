@@ -36,7 +36,7 @@ Route::post('/logout', function () {
     auth()->logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
-    return redirect()->route('login');
+    return \Inertia\Inertia::location(route('login'));
 })->name('logout');
 
 // Protected routes
