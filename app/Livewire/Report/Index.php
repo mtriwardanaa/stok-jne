@@ -79,37 +79,37 @@ class Index extends Component
         $totalNilai = 0;
         
         foreach ($barangKeluars as $bk) {
+            
             foreach ($bk->details as $detail) {
                 if ($this->selectedBarang && $detail->id_barang != $this->selectedBarang) {
                     continue;
                 }
+                // Determine organization from requestUser (SSO database)
+                $user_request = $bk->nama_user_reques ?? '-';
+                $penerima = $bk?->order?->createdUser?->name ?? $bk->requestUser?->name ?? $bk->nama_user_request ?? '-';
                 
-                // Determine organization
-                $penerima = '-';
-                $orgType = 'unknown';
-                $orgId = null;
+                $departmentId = $bk?->order?->createdUser?->department_id ?? $bk->requestUser?->department_id;
+                $departmentName = $bk?->order?->createdUser?->department?->name ?? $bk->requestUser?->department?->name;
+                $groupId = $bk?->order?->createdUser?->group_id ?? $bk->requestUser?->group_id;
+                $groupName = $bk?->order?->createdUser?->group?->name ?? $bk->requestUser?->group?->name;
                 
-                if ($bk->requestUser) {
-                    $penerima = $bk->requestUser->name;
-                    if ($bk->requestUser->department) {
-                        $orgType = 'divisi';
-                        $orgId = $bk->requestUser->department->id;
-                    } elseif ($bk->requestUser->group) {
-                        $orgType = 'partner';
-                        $orgId = $bk->requestUser->group->id;
-                    }
-                } elseif ($bk->order) {
-                    $penerima = $bk->order->organization_name;
-                    $orgType = $bk->order->tipe === 'eksternal' ? 'partner' : 'divisi';
+                // Fallback to createdUser if requestUser not available
+                if (!$departmentId && !$groupId && $bk->createdUser) {
+                    $departmentId = $bk->createdUser->department_id;
+                    $departmentName = $bk->createdUser->department?->name;
+                    $groupId = $bk->createdUser->group_id;
+                    $groupName = $bk->createdUser->group?->name;
                 }
                 
                 // Apply filter
                 if ($this->summaryFilter === 'divisi') {
-                    if ($orgType !== 'divisi') continue;
-                    if ($this->selectedDivisi && $orgId != $this->selectedDivisi) continue;
+                    // Only show internal divisi (has department_id, no group_id)
+                    if (!$departmentId) continue;
+                    if ($this->selectedDivisi && $departmentId != $this->selectedDivisi) continue;
                 } elseif ($this->summaryFilter === 'partner') {
-                    if ($orgType !== 'partner') continue;
-                    if ($this->selectedPartner && $orgId != $this->selectedPartner) continue;
+                    // Only show partner (has group_id)
+                    if (!$groupId) continue;
+                    if ($this->selectedPartner && $groupId != $this->selectedPartner) continue;
                 }
                 
                 $harga = $detail->barang->harga_barang ?? 0;
@@ -125,6 +125,8 @@ class Index extends Component
                     'harga' => $harga,
                     'nilai' => $nilai,
                     'penerima' => $penerima,
+                    'divisi' => $departmentName,
+                    'group' => $groupName,
                     'tanggal_request' => $bk->order?->tanggal_order ?? $bk->tanggal,
                 ];
                 

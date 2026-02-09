@@ -58,14 +58,12 @@ class MigrateStep2Master extends Command
         $this->info('Migrating stok_supplier...');
         $suppliers = DB::connection('laporit')->table('stok_supplier')->get();
         foreach ($suppliers as $s) {
-            DB::table('stok_supplier')->updateOrInsert(
-                ['id' => $s->id],
-                [
-                    'nama_supplier' => $s->nama_supplier,
-                    'created_at' => $s->created_at,
-                    'updated_at' => $s->updated_at,
-                ]
-            );
+            DB::table('stok_supplier')->insert([
+                'id' => $s->id,
+                'nama_supplier' => $s->nama_supplier,
+                'created_at' => $s->created_at,
+                'updated_at' => $s->updated_at,
+            ]);
         }
         $this->info("  -> {$suppliers->count()} suppliers migrated");
 
@@ -73,14 +71,12 @@ class MigrateStep2Master extends Command
         $this->info('Migrating stok_barang_satuan...');
         $satuans = DB::connection('laporit')->table('stok_barang_satuan')->get();
         foreach ($satuans as $s) {
-            DB::table('stok_barang_satuan')->updateOrInsert(
-                ['id' => $s->id],
-                [
-                    'nama_satuan' => $s->nama_satuan,
-                    'created_at' => $s->created_at,
-                    'updated_at' => $s->updated_at,
-                ]
-            );
+            DB::table('stok_barang_satuan')->insert([
+                'id' => $s->id,
+                'nama_satuan' => $s->nama_satuan,
+                'created_at' => $s->created_at,
+                'updated_at' => $s->updated_at,
+            ]);
         }
         $this->info("  -> {$satuans->count()} satuan migrated");
 
@@ -88,24 +84,22 @@ class MigrateStep2Master extends Command
         $this->info('Migrating stok_barang...');
         $barangs = DB::connection('laporit')->table('stok_barang')->get();
         foreach ($barangs as $b) {
-            DB::table('stok_barang')->updateOrInsert(
-                ['id' => $b->id],
-                [
-                    'kode_barang' => $b->kode_barang,
-                    'nama_barang' => $b->nama_barang,
-                    'qty_barang' => $b->qty_barang ?? 0,
-                    'harga_barang' => $b->harga_barang ?? 0,
-                    'warning_stok' => $b->warning_stok ?? 0,
-                    'stok_awal' => $b->stok_awal ?? 0,
-                    'id_barang_satuan' => $b->id_barang_satuan,
-                    'internal' => $b->internal ?? 0,
-                    'agen' => $b->agen ?? 0,
-                    'subagen' => $b->subagen ?? 0,
-                    'corporate' => $b->corporate ?? 0,
-                    'created_at' => $b->created_at,
-                    'updated_at' => $b->updated_at,
-                ]
-            );
+            DB::table('stok_barang')->insert([
+                'id' => $b->id,
+                'kode_barang' => $b->kode_barang,
+                'nama_barang' => $b->nama_barang,
+                'qty_barang' => $b->qty_barang ?? 0,
+                'harga_barang' => $b->harga_barang ?? 0,
+                'warning_stok' => $b->warning_stok ?? 0,
+                'stok_awal' => $b->stok_awal ?? 0,
+                'id_barang_satuan' => $b->id_barang_satuan,
+                'internal' => $b->internal ?? 0,
+                'agen' => $b->agen ?? 0,
+                'subagen' => $b->subagen ?? 0,
+                'corporate' => $b->corporate ?? 0,
+                'created_at' => $b->created_at,
+                'updated_at' => $b->updated_at,
+            ]);
         }
         $this->info("  -> {$barangs->count()} barang migrated");
 

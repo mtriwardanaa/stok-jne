@@ -47,7 +47,7 @@ return new class extends Migration
         // Barang Masuk (Stock In)
         Schema::create('stok_barang_masuk', function (Blueprint $table) {
             $table->id();
-            $table->string('no_barang_masuk')->unique();
+            $table->string('no_barang_masuk');
             $table->dateTime('tanggal');
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by')->nullable();
@@ -68,7 +68,7 @@ return new class extends Migration
         // Barang Keluar (Stock Out)
         Schema::create('stok_barang_keluar', function (Blueprint $table) {
             $table->id();
-            $table->string('no_barang_keluar')->unique();
+            $table->string('no_barang_keluar');
             $table->dateTime('tanggal');
             $table->unsignedBigInteger('id_divisi')->nullable();
             $table->unsignedBigInteger('id_kategori')->nullable();
@@ -111,7 +111,7 @@ return new class extends Migration
         // Order (Request from apps-jne)
         Schema::create('stok_order', function (Blueprint $table) {
             $table->id();
-            $table->string('no_order')->unique();
+            $table->string('no_order');
             $table->dateTime('tanggal');
             $table->unsignedBigInteger('id_divisi')->nullable();
             $table->unsignedBigInteger('id_kategori')->nullable();

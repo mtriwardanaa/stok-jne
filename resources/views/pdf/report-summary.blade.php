@@ -64,11 +64,11 @@
                     <th style="width: 8%;">Kode Brg</th>
                     <th style="width: 18%;">Nama Barang</th>
                     <th class="text-center" style="width: 5%;">Sat</th>
+                    <th style="width: 15%;">Penerima</th>
+                    <th class="nowrap" style="width: 8%;">Tgl Request</th>
                     <th class="text-center" style="width: 4%;">Qty</th>
                     <th class="text-right nowrap" style="width: 9%;">Harga</th>
                     <th class="text-right nowrap" style="width: 10%;">Nilai</th>
-                    <th style="width: 15%;">Penerima</th>
-                    <th class="nowrap" style="width: 8%;">Tgl Request</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,19 +80,18 @@
                         <td>{{ $item['kode_barang'] }}</td>
                         <td>{{ $item['nama_barang'] }}</td>
                         <td class="text-center">{{ $item['satuan'] }}</td>
+                        <td>{{ $item['penerima'] }}</td>
+                        <td class="nowrap">{{ \Carbon\Carbon::parse($item['tanggal_request'])->format('d/m/Y') }}</td>
                         <td class="text-center">{{ $item['qty'] }}</td>
                         <td class="text-right nowrap">{{ number_format($item['harga'], 0, ',', '.') }}</td>
                         <td class="text-right nowrap">{{ number_format($item['nilai'], 0, ',', '.') }}</td>
-                        <td>{{ $item['penerima'] }}</td>
-                        <td class="nowrap">{{ \Carbon\Carbon::parse($item['tanggal_request'])->format('d/m/Y') }}</td>
                     </tr>
                 @endforeach
                 <tr class="grandtotal">
-                    <td colspan="6" class="text-right"><strong>TOTAL</strong></td>
+                    <td colspan="8" class="text-right"><strong>TOTAL</strong></td>
                     <td class="text-center"><strong>{{ $totalQty }}</strong></td>
                     <td></td>
                     <td class="text-right"><strong>{{ number_format($totalNilai, 0, ',', '.') }}</strong></td>
-                    <td colspan="2"></td>
                 </tr>
             </tbody>
         </table>

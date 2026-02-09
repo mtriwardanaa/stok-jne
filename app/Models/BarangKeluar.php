@@ -42,7 +42,7 @@ class BarangKeluar extends Model
 
     public function requestUser()
     {
-        return $this->belongsTo(User::class, 'id_user_request');
+        return $this->belongsTo(User::class, 'id_agen');
     }
 
     public function createdUser()

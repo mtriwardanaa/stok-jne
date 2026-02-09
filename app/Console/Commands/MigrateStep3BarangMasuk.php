@@ -36,13 +36,11 @@ class MigrateStep3BarangMasuk extends Command
         // Count source data
         $oldMasuk = DB::connection('laporit')->table('stok_barang_masuk')->count();
         $oldMasukDetail = DB::connection('laporit')->table('stok_barang_masuk_detail')->count();
-        $oldHarga = DB::connection('laporit')->table('stok_barang_harga')->count();
 
         $this->info("Source data from laporit:");
         $this->table(['Table', 'Count'], [
             ['stok_barang_masuk', $oldMasuk],
             ['stok_barang_masuk_detail', $oldMasukDetail],
-            ['stok_barang_harga', $oldHarga],
         ]);
 
         if ($dryRun) {
@@ -67,28 +65,43 @@ class MigrateStep3BarangMasuk extends Command
         
         $inserted = 0;
         $skipped = 0;
+        $failedMasuk = []; // Track failed records
+        
         foreach ($masuks as $m) {
             $createdBy = $this->mapUserId($m->created_by);
             $updatedBy = $this->mapUserId($m->updated_by);
             
             try {
-                // Use no_barang_masuk as unique key to handle duplicates
-                DB::table('stok_barang_masuk')->updateOrInsert(
-                    ['no_barang_masuk' => $m->no_barang_masuk],
-                    [
-                        'tanggal' => $m->tanggal,
-                        'created_by' => $createdBy,
-                        'updated_by' => $updatedBy,
-                        'created_at' => $m->created_at,
-                        'updated_at' => $m->updated_at,
-                    ]
-                );
+                // Insert with original ID to preserve foreign key relationships
+                DB::table('stok_barang_masuk')->insert([
+                    'id' => $m->id,
+                    'no_barang_masuk' => $m->no_barang_masuk,
+                    'tanggal' => $m->tanggal,
+                    'created_by' => $createdBy,
+                    'updated_by' => $updatedBy,
+                    'created_at' => $m->created_at,
+                    'updated_at' => $m->updated_at,
+                ]);
+                
                 $inserted++;
             } catch (\Exception $e) {
                 $skipped++;
+                $failedMasuk[] = [
+                    'id' => $m->id,
+                    'no_barang_masuk' => $m->no_barang_masuk,
+                    'error' => $e->getMessage(),
+                ];
             }
         }
-        $this->info("  -> {$inserted} barang masuk migrated, {$skipped} skipped (duplicates)");
+        $this->info("  -> {$inserted} barang masuk migrated, {$skipped} skipped");
+        
+        // Show failed records if any
+        if (count($failedMasuk) > 0) {
+            $this->warn('  FAILED BARANG MASUK RECORDS:');
+            foreach ($failedMasuk as $f) {
+                $this->error("    ID: {$f['id']}, No: {$f['no_barang_masuk']}, Error: {$f['error']}");
+            }
+        }
 
         // 2. Migrate stok_barang_masuk_detail
         $this->info('Migrating stok_barang_masuk_detail...');
@@ -96,47 +109,49 @@ class MigrateStep3BarangMasuk extends Command
         
         $insertedDetail = 0;
         $skippedDetail = 0;
+        $failedDetail = []; // Track failed records
         foreach ($details as $d) {
             try {
-                DB::table('stok_barang_masuk_detail')->updateOrInsert(
-                    ['id_barang_masuk' => $d->id_barang_masuk, 'id_barang' => $d->id_barang],
-                    [
-                        'id_supplier' => $d->id_supplier ?? 1,
-                        'qty_barang' => $d->qty_barang ?? 0,
-                        'harga_barang' => $d->harga_barang ?? 0,
-                        'created_at' => $d->created_at,
-                        'updated_at' => $d->updated_at,
-                    ]
-                );
+                DB::table('stok_barang_masuk_detail')->insert([
+                    'id' => $d->id,
+                    'id_barang_masuk' => $d->id_barang_masuk,
+                    'id_barang' => $d->id_barang,
+                    'id_supplier' => $d->id_supplier ?? 1,
+                    'qty_barang' => $d->qty_barang ?? 0,
+                    'harga_barang' => $d->harga_barang ?? 0,
+                    'created_at' => $d->created_at,
+                    'updated_at' => $d->updated_at,
+                ]);
                 $insertedDetail++;
             } catch (\Exception $e) {
                 $skippedDetail++;
+                $failedDetail[] = [
+                    'id' => $d->id ?? 'N/A',
+                    'id_barang_masuk' => $d->id_barang_masuk,
+                    'id_barang' => $d->id_barang,
+                    'error' => $e->getMessage(),
+                ];
             }
         }
         $this->info("  -> {$insertedDetail} detail migrated, {$skippedDetail} skipped");
-
-        // 3. Migrate stok_barang_harga
-        $this->info('Migrating stok_barang_harga...');
-        $hargas = DB::connection('laporit')->table('stok_barang_harga')->get();
         
-        $insertedHarga = 0;
-        $skippedHarga = 0;
-        foreach ($hargas as $h) {
-            try {
-                DB::table('stok_barang_harga')->updateOrInsert(
-                    ['id_barang_masuk' => $h->id_barang_masuk, 'id_barang' => $h->id_barang],
-                    [
-                        'harga_barang' => $h->harga_barang,
-                        'created_at' => $h->created_at,
-                        'updated_at' => $h->updated_at,
-                    ]
-                );
-                $insertedHarga++;
-            } catch (\Exception $e) {
-                $skippedHarga++;
-            }
-        }
-        $this->info("  -> {$insertedHarga} harga migrated, {$skippedHarga} skipped");
+        // Show failed records if any
+        // if (count($failedDetail) > 0) {
+        //     $this->warn('  FAILED DETAIL RECORDS:');
+        //     foreach ($failedDetail as $f) {
+        //         $this->error("    ID Masuk: {$f['id_barang_masuk']}, ID Barang: {$f['id_barang']}, Error: {$f['error']}");
+        //     }
+        // }
+
+        
+        
+        // Show failed records if any
+        // if (count($failedHarga) > 0) {
+        //     $this->warn('  FAILED HARGA RECORDS:');
+        //     foreach ($failedHarga as $f) {
+        //         $this->error("    ID Masuk: {$f['id_barang_masuk']}, ID Barang: {$f['id_barang']}, Error: {$f['error']}");
+        //     }
+        // }
 
         // Verification
         $this->newLine();
@@ -146,7 +161,6 @@ class MigrateStep3BarangMasuk extends Command
             [
                 ['stok_barang_masuk', $oldMasuk, DB::table('stok_barang_masuk')->count()],
                 ['stok_barang_masuk_detail', $oldMasukDetail, DB::table('stok_barang_masuk_detail')->count()],
-                ['stok_barang_harga', $oldHarga, DB::table('stok_barang_harga')->count()],
             ]
         );
 

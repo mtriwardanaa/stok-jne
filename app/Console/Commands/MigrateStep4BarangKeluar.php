@@ -38,6 +38,7 @@ class MigrateStep4BarangKeluar extends Command
         $oldOrderDetail = DB::connection('laporit')->table('stok_order_detail')->count();
         $oldKeluar = DB::connection('laporit')->table('stok_barang_keluar')->count();
         $oldKeluarDetail = DB::connection('laporit')->table('stok_barang_keluar_detail')->count();
+        $oldHarga = DB::connection('laporit')->table('stok_barang_harga')->count();
 
         $this->info("Source data from laporit:");
         $this->table(['Table', 'Count'], [
@@ -45,6 +46,7 @@ class MigrateStep4BarangKeluar extends Command
             ['stok_order_detail', $oldOrderDetail],
             ['stok_barang_keluar', $oldKeluar],
             ['stok_barang_keluar_detail', $oldKeluarDetail],
+            ['stok_barang_harga', $oldHarga],
         ]);
 
         if ($dryRun) {
@@ -60,6 +62,7 @@ class MigrateStep4BarangKeluar extends Command
             DB::table('stok_barang_keluar')->truncate();
             DB::table('stok_order_detail')->truncate();
             DB::table('stok_order')->truncate();
+            DB::table('stok_barang_harga')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS = 1');
             $this->info('Tables truncated');
         }
@@ -87,27 +90,26 @@ class MigrateStep4BarangKeluar extends Command
             }
             
             try {
-                DB::table('stok_order')->updateOrInsert(
-                    ['no_order' => $o->no_order],
-                    [
-                        'tanggal' => $o->tanggal,
-                        'tanggal_update' => $o->tanggal_update,
-                        'tanggal_approve' => $o->tanggal_approve,
-                        'tanggal_reject' => $o->tanggal_reject,
-                        'id_divisi' => $o->id_divisi,
-                        'id_kategori' => $o->id_kategori,
-                        'created_by' => $createdBy,
-                        'updated_by' => $updatedBy,
-                        'approved_by' => $approvedBy,
-                        'rejected_by' => $rejectedBy,
-                        'rejected_text' => $o->rejected_text ?? null,
-                        'nama_user_request' => $o->nama_user_request,
-                        'hp_user_request' => $o->hp_user_request,
-                        'status' => $status,
-                        'created_at' => $o->created_at,
-                        'updated_at' => $o->updated_at,
-                    ]
-                );
+                DB::table('stok_order')->insert([
+                    'id' => $o->id,
+                    'no_order' => $o->no_order,
+                    'tanggal' => $o->tanggal,
+                    'tanggal_update' => $o->tanggal_update,
+                    'tanggal_approve' => $o->tanggal_approve,
+                    'tanggal_reject' => $o->tanggal_reject,
+                    'id_divisi' => $o->id_divisi,
+                    'id_kategori' => $o->id_kategori,
+                    'created_by' => $createdBy,
+                    'updated_by' => $updatedBy,
+                    'approved_by' => $approvedBy,
+                    'rejected_by' => $rejectedBy,
+                    'rejected_text' => $o->rejected_text ?? null,
+                    'nama_user_request' => $o->nama_user_request,
+                    'hp_user_request' => $o->hp_user_request,
+                    'status' => $status,
+                    'created_at' => $o->created_at,
+                    'updated_at' => $o->updated_at,
+                ]);
                 $insertedOrder++;
             } catch (\Exception $e) {
                 $skippedOrder++;
@@ -123,15 +125,15 @@ class MigrateStep4BarangKeluar extends Command
         $skippedOD = 0;
         foreach ($orderDetails as $d) {
             try {
-                DB::table('stok_order_detail')->updateOrInsert(
-                    ['id_order' => $d->id_order, 'id_barang' => $d->id_barang],
-                    [
-                        'qty_barang' => $d->qty_barang ?? 0,
-                        'qty_approved' => $d->jumlah_approve ?? 0,
-                        'created_at' => $d->created_at,
-                        'updated_at' => $d->updated_at,
-                    ]
-                );
+                DB::table('stok_order_detail')->insert([
+                    'id' => $d->id,
+                    'id_order' => $d->id_order,
+                    'id_barang' => $d->id_barang,
+                    'qty_barang' => $d->qty_barang ?? 0,
+                    'qty_approved' => $d->jumlah_approve ?? 0,
+                    'created_at' => $d->created_at,
+                    'updated_at' => $d->updated_at,
+                ]);
                 $insertedOD++;
             } catch (\Exception $e) {
                 $skippedOD++;
@@ -150,22 +152,21 @@ class MigrateStep4BarangKeluar extends Command
             $updatedBy = $this->mapUserId($k->updated_by);
             
             try {
-                DB::table('stok_barang_keluar')->updateOrInsert(
-                    ['no_barang_keluar' => $k->no_barang_keluar],
-                    [
-                        'tanggal' => $k->tanggal,
-                        'id_divisi' => $k->id_divisi,
-                        'id_kategori' => $k->id_kategori,
-                        'id_agen' => $k->id_agen ?? null,
-                        'id_order' => $k->id_order ?? null,
-                        'nama_user_request' => $k->nama_user_request,
-                        'distribusi_sales' => $k->distribusi_sales == 1 ? 'yes' : null,
-                        'created_by' => $createdBy,
-                        'updated_by' => $updatedBy,
-                        'created_at' => $k->created_at,
-                        'updated_at' => $k->updated_at,
-                    ]
-                );
+                DB::table('stok_barang_keluar')->insert([
+                    'id' => $k->id,
+                    'no_barang_keluar' => $k->no_barang_keluar,
+                    'tanggal' => $k->tanggal,
+                    'id_divisi' => $k->id_divisi,
+                    'id_kategori' => $k->id_kategori,
+                    'id_agen' => $k->id_agen ?? null,
+                    'id_order' => $k->id_order ?? null,
+                    'nama_user_request' => $k->nama_user_request,
+                    'distribusi_sales' => $k->distribusi_sales == 1 ? 'yes' : null,
+                    'created_by' => $createdBy,
+                    'updated_by' => $updatedBy,
+                    'created_at' => $k->created_at,
+                    'updated_at' => $k->updated_at,
+                ]);
                 $insertedKeluar++;
             } catch (\Exception $e) {
                 $skippedKeluar++;
@@ -181,20 +182,56 @@ class MigrateStep4BarangKeluar extends Command
         $skippedKD = 0;
         foreach ($keluarDetails as $d) {
             try {
-                DB::table('stok_barang_keluar_detail')->updateOrInsert(
-                    ['id_barang_keluar' => $d->id_barang_keluar, 'id_barang' => $d->id_barang],
-                    [
-                        'qty_barang' => $d->qty_barang ?? 0,
-                        'created_at' => $d->created_at,
-                        'updated_at' => $d->updated_at,
-                    ]
-                );
+                DB::table('stok_barang_keluar_detail')->insert([
+                    'id' => $d->id,
+                    'id_barang_keluar' => $d->id_barang_keluar,
+                    'id_barang' => $d->id_barang,
+                    'qty_barang' => $d->qty_barang ?? 0,
+                    'created_at' => $d->created_at,
+                    'updated_at' => $d->updated_at,
+                ]);
                 $insertedKD++;
             } catch (\Exception $e) {
                 $skippedKD++;
             }
         }
         $this->info("  -> {$insertedKD} barang keluar detail migrated, {$skippedKD} skipped");
+
+        // 3. Migrate stok_barang_harga
+        $this->info('Migrating stok_barang_harga...');
+        $hargas = DB::connection('laporit')->table('stok_barang_harga')->get();
+        
+        $insertedHarga = 0;
+        $skippedHarga = 0;
+        $failedHarga = []; // Track failed records
+        foreach ($hargas as $h) {
+            try {
+                DB::table('stok_barang_harga')->insert([
+                    'id' => $h->id,
+                    'id_barang_masuk' => $h->id_barang_masuk,
+                    'id_barang_keluar' => $h->id_barang_keluar,
+                    'id_barang' => $h->id_barang,
+                    'qty_barang' => $h->qty_barang,
+                    'min_barang' => $h->min_barang,
+                    'id_ref_min_barang' => $h->id_ref_min_barang,
+                    'harga_barang' => $h->harga_barang,
+                    'tanggal_barang' => $h->tanggal_barang,
+                    'harga_barang_invoice' => $h->harga_barang_invoice,
+                    'created_at' => $h->created_at,
+                    'updated_at' => $h->updated_at,
+                ]);
+                $insertedHarga++;
+            } catch (\Exception $e) {
+                dd($e);
+                $skippedHarga++;
+                $failedHarga[] = [
+                    'id_barang_masuk' => $h->id_barang_masuk,
+                    'id_barang' => $h->id_barang,
+                    'error' => $e->getMessage(),
+                ];
+            }
+        }
+        $this->info("  -> {$insertedHarga} harga migrated, {$skippedHarga} skipped");
 
         // Verification
         $this->newLine();
@@ -206,6 +243,7 @@ class MigrateStep4BarangKeluar extends Command
                 ['stok_order_detail', $oldOrderDetail, DB::table('stok_order_detail')->count()],
                 ['stok_barang_keluar', $oldKeluar, DB::table('stok_barang_keluar')->count()],
                 ['stok_barang_keluar_detail', $oldKeluarDetail, DB::table('stok_barang_keluar_detail')->count()],
+                ['stok_barang_harga', $oldHarga, DB::table('stok_barang_harga')->count()],
             ]
         );
 

@@ -178,10 +178,11 @@
                                 <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Kode</th>
                                 <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Nama Barang</th>
                                 <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Sat</th>
+                                <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Penerima</th>
+                                <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Divisi / Group</th>
                                 <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Qty</th>
                                 <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Harga</th>
                                 <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Nilai</th>
-                                <th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Penerima</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 bg-white">
@@ -193,6 +194,8 @@
                                     <td class="px-4 py-3 text-sm font-mono text-slate-500">{{ $item['kode_barang'] }}</td>
                                     <td class="px-4 py-3 text-sm font-semibold text-slate-800">{{ $item['nama_barang'] }}</td>
                                     <td class="px-4 py-3 text-sm text-slate-600 text-center">{{ $item['satuan'] }}</td>
+                                    <td class="px-4 py-3 text-sm text-slate-600">{{ $item['penerima'] }}</td>
+                                    <td class="px-4 py-3 text-sm text-slate-600">{{ $item['divisi'] ?? $item['group'] }}</td>
                                     <td class="px-4 py-3 text-sm font-bold text-center">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
                                             {{ $item['qty'] }}
@@ -200,11 +203,10 @@
                                     </td>
                                     <td class="px-4 py-3 text-sm text-slate-600 text-right font-mono">{{ number_format($item['harga'], 0, ',', '.') }}</td>
                                     <td class="px-4 py-3 text-sm font-semibold text-right font-mono text-slate-800">{{ number_format($item['nilai'], 0, ',', '.') }}</td>
-                                    <td class="px-4 py-3 text-sm text-slate-600">{{ $item['penerima'] }}</td>
                                 </tr>
                             @endforeach
                             <tr class="bg-gradient-to-r from-slate-900 to-slate-800 text-white font-bold">
-                                <td class="px-4 py-4" colspan="6">
+                                <td class="px-4 py-4" colspan="8">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -215,7 +217,6 @@
                                 <td class="px-4 py-4 text-center">{{ $summaryData['total_qty'] }}</td>
                                 <td class="px-4 py-4"></td>
                                 <td class="px-4 py-4 text-right font-mono">Rp {{ number_format($summaryData['total_nilai'], 0, ',', '.') }}</td>
-                                <td class="px-4 py-4"></td>
                             </tr>
                         </tbody>
                     </table>
