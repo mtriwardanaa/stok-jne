@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import SearchableSelect from '@/Components/SearchableSelect.vue'
 
 const props = defineProps({
     barangMasuks: Object,
@@ -65,12 +66,12 @@ const getTotalValue = (details) => {
                     <div class="flex flex-wrap gap-3">
                         <input type="text" v-model="search" placeholder="Cari no. barang masuk..." 
                             class="px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50">
-                        <select v-model="month" @change="applyFilter" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50">
-                            <option v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</option>
-                        </select>
-                        <select v-model="year" @change="applyFilter" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50">
-                            <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
-                        </select>
+                        <div class="w-36">
+                            <SearchableSelect v-model="month" :options="months" placeholder="Bulan" @update:modelValue="applyFilter" />
+                        </div>
+                        <div class="w-28">
+                            <SearchableSelect v-model="year" :options="years.map(y => ({ value: y, label: String(y) }))" placeholder="Tahun" @update:modelValue="applyFilter" />
+                        </div>
                         <Link href="/barang-masuk/create" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                             Tambah

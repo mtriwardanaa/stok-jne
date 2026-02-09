@@ -100,12 +100,12 @@ const formatDate = (dateStr) => {
                     <div class="flex flex-wrap gap-3">
                         <input type="text" v-model="search" placeholder="Cari barang..." 
                             class="px-4 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50">
-                        <select v-model="month" @change="applyFilter" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50">
-                            <option v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</option>
-                        </select>
-                        <select v-model="year" @change="applyFilter" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50">
-                            <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
-                        </select>
+                        <div class="w-36">
+                            <SearchableSelect v-model="month" :options="months" placeholder="Bulan" @update:modelValue="applyFilter" />
+                        </div>
+                        <div class="w-28">
+                            <SearchableSelect v-model="year" :options="years.map(y => ({ value: y, label: String(y) }))" placeholder="Tahun" @update:modelValue="applyFilter" />
+                        </div>
                     </div>
                 </div>
             </div>

@@ -134,14 +134,11 @@ const printReport = () => {
                                 </svg>
                                 Jenis Laporan
                             </label>
-                            <select 
+                            <SearchableSelect 
                                 v-model="summaryFilter"
-                                class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all"
-                            >
-                                <option v-for="type in filterTypes" :key="type.value" :value="type.value">
-                                    {{ type.label }}
-                                </option>
-                            </select>
+                                :options="filterTypes"
+                                placeholder="📊 Pilih Laporan"
+                            />
                         </div>
                         
                         <!-- Barang -->

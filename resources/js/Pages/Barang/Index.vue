@@ -1,7 +1,8 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { router, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import SearchableSelect from '@/Components/SearchableSelect.vue'
 
 const props = defineProps({
     barangs: Object,
@@ -351,10 +352,11 @@ const filterTabs = [
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-slate-700 mb-1.5">Satuan</label>
-                                        <select v-model="form.id_barang_satuan" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50 focus:bg-white transition-colors">
-                                            <option value="">Pilih Satuan</option>
-                                            <option v-for="satuan in satuans" :key="satuan.id" :value="satuan.id">{{ satuan.nama_satuan }}</option>
-                                        </select>
+                                        <SearchableSelect 
+                                            v-model="form.id_barang_satuan"
+                                            :options="satuans.map(s => ({ value: s.id, label: s.nama_satuan }))"
+                                            placeholder="Pilih Satuan"
+                                        />
                                         <p v-if="form.errors.id_barang_satuan" class="text-rose-500 text-xs mt-1">{{ form.errors.id_barang_satuan }}</p>
                                     </div>
                                 </div>

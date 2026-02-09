@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import SearchableSelect from '@/Components/SearchableSelect.vue'
 
 const props = defineProps({
     opnameData: Array,
@@ -53,12 +54,12 @@ const printReport = () => {
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-3">
-                        <select v-model="month" @change="applyFilter" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50">
-                            <option v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</option>
-                        </select>
-                        <select v-model="year" @change="applyFilter" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50">
-                            <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
-                        </select>
+                        <div class="w-36">
+                            <SearchableSelect v-model="month" :options="months" placeholder="Bulan" @update:modelValue="applyFilter" />
+                        </div>
+                        <div class="w-28">
+                            <SearchableSelect v-model="year" :options="years.map(y => ({ value: y, label: String(y) }))" placeholder="Tahun" @update:modelValue="applyFilter" />
+                        </div>
                         <button @click="printReport" class="px-4 py-2 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                             Print
