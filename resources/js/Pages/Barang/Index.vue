@@ -131,62 +131,57 @@ const filterTabs = [
                 <span class="text-sm font-semibold">{{ $page.props.flash.success }}</span>
             </div>
 
-            <!-- Header & Controls -->
-            <div class="relative rounded-3xl p-1 bg-gradient-to-b from-white to-slate-50 shadow-sm border border-slate-200">
-                <div class="relative bg-white/60 backdrop-blur-xl rounded-[1.4rem] p-6">
-                    <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
-                    
-                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <div class="p-2.5 bg-indigo-500/10 rounded-xl">
-                                    <svg class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <!-- Header Card -->
+            <div class="relative rounded-2xl bg-white border border-slate-200/60 shadow-xl shadow-slate-200/50">
+                <!-- Background Decoration -->
+                <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-pink-500/5 rounded-full blur-3xl -mr-48 -mt-48"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-blue-500/5 to-cyan-500/5 rounded-full blur-2xl -ml-32 -mb-32"></div>
+                
+                <div class="relative p-6">
+                    <!-- Title Section -->
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl blur opacity-40"></div>
+                                <div class="relative p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg">
+                                    <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                     </svg>
                                 </div>
-                                <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Master Barang</h2>
                             </div>
-                            <p class="text-sm text-slate-500 ml-1">Kelola data inventaris, stok, dan harga barang.</p>
+                            <div>
+                                <h2 class="text-2xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-600 bg-clip-text text-transparent">Master Barang</h2>
+                                <p class="text-sm text-slate-500 mt-0.5">Kelola data inventaris, stok, dan harga barang</p>
+                            </div>
                         </div>
-
-                        <div class="flex flex-col sm:flex-row gap-4 flex-1 justify-end">
-                            <!-- Search Box -->
-                            <div class="relative group w-full sm:w-72">
-                                <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl opacity-20 group-hover:opacity-40 transition duration-500 blur"></div>
-                                <div class="relative flex items-center bg-white rounded-xl shadow-sm">
-                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                        <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
-                                    </div>
-                                    <input type="text" 
-                                        v-model="search"
-                                        class="block w-full pl-11 pr-4 py-3 bg-transparent border-0 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-0 sm:text-sm" 
-                                        placeholder="Cari barang...">
-                                </div>
+                        
+                        <!-- Filters -->
+                        <div class="flex flex-wrap items-center gap-3">
+                            <div class="relative">
+                                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <input type="text" v-model="search" placeholder="Cari barang..." 
+                                    class="pl-10 pr-4 py-2.5 w-56 border-0 bg-slate-100/80 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/30 focus:bg-white transition-all placeholder:text-slate-400">
                             </div>
-
-                            <!-- Action Button -->
-                            <button @click="openCreateModal" class="group relative inline-flex items-center justify-center px-6 py-3 text-sm font-bold text-white bg-slate-900 rounded-xl transition-all">
-                                <div class="absolute -inset-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 opacity-20 blur-lg group-hover:opacity-40"></div>
-                                <span class="relative flex items-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    Tambah Barang
-                                </span>
+                            <button @click="openCreateModal" class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Tambah Barang
                             </button>
                         </div>
                     </div>
 
-                    <!-- Filter Tabs -->
-                    <div class="mt-6 flex overflow-x-auto pb-1 sm:pb-0">
-                        <div class="flex p-1.5 space-x-1 bg-slate-100/60 rounded-xl border border-slate-200/60">
+                    <!-- Status Tabs -->
+                    <div class="mt-6 flex overflow-x-auto pb-1">
+                        <div class="inline-flex p-1.5 space-x-1 bg-slate-100/80 rounded-2xl">
                             <button v-for="tab in filterTabs" :key="tab.id" @click="setFilter(tab.id)"
-                                class="relative flex items-center px-4 py-2 text-xs font-bold rounded-lg transition-all"
-                                :class="filter === tab.id ? 'text-indigo-600 shadow-sm bg-white ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'">
+                                class="relative flex items-center gap-2 px-5 py-2.5 text-xs font-bold rounded-xl transition-all duration-200"
+                                :class="filter === tab.id 
+                                    ? 'bg-white text-slate-800 shadow-lg shadow-slate-200/50 ring-1 ring-slate-200/50' 
+                                    : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'">
                                 {{ tab.label }}
-                                <span v-if="filter === tab.id" class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-indigo-500 rounded-full"></span>
                             </button>
                         </div>
                     </div>
