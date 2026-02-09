@@ -41,7 +41,7 @@ const managementItems = [
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-gray-50 overflow-x-hidden">
         <!-- Mobile sidebar backdrop -->
         <Transition
             enter-active-class="transition-opacity duration-300"

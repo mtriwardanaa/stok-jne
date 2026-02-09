@@ -66,7 +66,7 @@ const getStatusColor = (s) => {
     <AppLayout title="Order Request">
         <div class="space-y-6">
             <!-- Header Card -->
-            <div class="relative overflow-hidden rounded-2xl bg-white border border-slate-200/60 shadow-xl shadow-slate-200/50">
+            <div class="relative rounded-2xl bg-white border border-slate-200/60 shadow-xl shadow-slate-200/50">
                 <!-- Background Decoration -->
                 <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-pink-500/5 rounded-full blur-3xl -mr-48 -mt-48"></div>
                 <div class="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-blue-500/5 to-cyan-500/5 rounded-full blur-2xl -ml-32 -mb-32"></div>
