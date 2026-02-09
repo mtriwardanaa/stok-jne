@@ -81,7 +81,7 @@ const printReport = () => {
     <AppLayout title="Summary Pengeluaran">
         <div class="space-y-6">
             <!-- Filter Card -->
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm">
                 <div class="p-6">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">

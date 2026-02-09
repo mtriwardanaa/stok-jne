@@ -1,20 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Livewire\Dashboard;
-use App\Livewire\Order\Index as OrderIndex;
-use App\Livewire\Order\Detail as OrderDetail;
-use App\Livewire\Barang\Index as BarangIndex;
-use App\Livewire\BarangMasuk\Index as BarangMasukIndex;
-use App\Livewire\BarangMasuk\Create as BarangMasukCreate;
-use App\Livewire\BarangMasuk\Detail as BarangMasukDetail;
-use App\Livewire\BarangKeluar\Index as BarangKeluarIndex;
-use App\Livewire\BarangKeluar\Create as BarangKeluarCreate;
-use App\Livewire\BarangKeluar\Detail as BarangKeluarDetail;
-use App\Livewire\Supplier\Index as SupplierIndex;
-use App\Livewire\Report\Index as ReportIndex;
-use App\Livewire\StokOpname\Index as StokOpnameIndex;
-use App\Livewire\StokOpname\Report as StokOpnameReport;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\BarangController;
+use App\Http\Controllers\BarangMasukController;
+use App\Http\Controllers\BarangKeluarController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\StokOpnameController;
+use App\Http\Controllers\ReportController;
 
 
 // Public routes
@@ -48,24 +42,25 @@ Route::post('/logout', function () {
 // Protected routes
 Route::middleware(['auth'])->group(function () {
     // Dashboard
-    Route::get('/', Dashboard::class)->name('dashboard');
-
-    // Order
-    Route::get('/order', OrderIndex::class)->name('order.index');
-    Route::get('/order/{id}', OrderDetail::class)->name('order.detail');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // Barang
-    Route::get('/barang', BarangIndex::class)->name('barang.index');
+    Route::get('/barang', [BarangController::class, 'index'])->name('barang.index');
+    Route::post('/barang', [BarangController::class, 'store'])->name('barang.store');
+    Route::put('/barang/{barang}', [BarangController::class, 'update'])->name('barang.update');
+    Route::delete('/barang/{barang}', [BarangController::class, 'destroy'])->name('barang.destroy');
 
     // Barang Masuk
-    Route::get('/barang-masuk', BarangMasukIndex::class)->name('barang-masuk.index');
-    Route::get('/barang-masuk/create', BarangMasukCreate::class)->name('barang-masuk.create');
-    Route::get('/barang-masuk/{id}', BarangMasukDetail::class)->name('barang-masuk.detail');
+    Route::get('/barang-masuk', [BarangMasukController::class, 'index'])->name('barang-masuk.index');
+    Route::get('/barang-masuk/create', [BarangMasukController::class, 'create'])->name('barang-masuk.create');
+    Route::post('/barang-masuk', [BarangMasukController::class, 'store'])->name('barang-masuk.store');
+    Route::get('/barang-masuk/{id}', [BarangMasukController::class, 'show'])->name('barang-masuk.show');
 
     // Barang Keluar
-    Route::get('/barang-keluar', BarangKeluarIndex::class)->name('barang-keluar.index');
-    Route::get('/barang-keluar/create', BarangKeluarCreate::class)->name('barang-keluar.create');
-    Route::get('/barang-keluar/{id}', BarangKeluarDetail::class)->name('barang-keluar.detail');
+    Route::get('/barang-keluar', [BarangKeluarController::class, 'index'])->name('barang-keluar.index');
+    Route::get('/barang-keluar/create', [BarangKeluarController::class, 'create'])->name('barang-keluar.create');
+    Route::post('/barang-keluar', [BarangKeluarController::class, 'store'])->name('barang-keluar.store');
+    Route::get('/barang-keluar/{id}', [BarangKeluarController::class, 'show'])->name('barang-keluar.show');
     Route::get('/barang-keluar/{id}/invoice', function ($id) {
         $barangKeluar = \App\Models\BarangKeluar::with(['details.barang.satuan', 'order', 'createdUser', 'requestUser'])->findOrFail($id);
         return view('pdf.invoice', compact('barangKeluar'));
@@ -75,15 +70,25 @@ Route::middleware(['auth'])->group(function () {
         return view('pdf.surat-jalan', compact('barangKeluar'));
     })->name('barang-keluar.surat-jalan');
 
-    // Supplier
-    Route::get('/supplier', SupplierIndex::class)->name('supplier.index');
+    // Order
+    Route::get('/order', [OrderController::class, 'index'])->name('order.index');
+    Route::get('/order/{id}', [OrderController::class, 'show'])->name('order.show');
+    Route::post('/order/{id}/approve', [OrderController::class, 'approve'])->name('order.approve');
+    Route::post('/order/{id}/reject', [OrderController::class, 'reject'])->name('order.reject');
 
-    // Report (Inertia)
-    Route::get('/report', [App\Http\Controllers\ReportController::class, 'index'])->name('report.index');
-    Route::get('/report/print-summary', [App\Http\Controllers\ReportController::class, 'printSummary'])->name('report.print-summary');
-    Route::get('/report/print-opname', [App\Http\Controllers\ReportController::class, 'printOpname'])->name('report.print-opname');
+    // Supplier
+    Route::get('/supplier', [SupplierController::class, 'index'])->name('supplier.index');
+    Route::post('/supplier', [SupplierController::class, 'store'])->name('supplier.store');
+    Route::put('/supplier/{supplier}', [SupplierController::class, 'update'])->name('supplier.update');
+    Route::delete('/supplier/{supplier}', [SupplierController::class, 'destroy'])->name('supplier.destroy');
 
     // Stock Opname
-    Route::get('/stok-opname', StokOpnameIndex::class)->name('stok-opname');
-    Route::get('/stok-opname/report', StokOpnameReport::class)->name('stok-opname.report');
+    Route::get('/stok-opname', [StokOpnameController::class, 'index'])->name('stok-opname.index');
+    Route::post('/stok-opname', [StokOpnameController::class, 'store'])->name('stok-opname.store');
+    Route::get('/stok-opname/report', [StokOpnameController::class, 'report'])->name('stok-opname.report');
+
+    // Report (Inertia)
+    Route::get('/report', [ReportController::class, 'index'])->name('report.index');
+    Route::get('/report/print-summary', [ReportController::class, 'printSummary'])->name('report.print-summary');
+    Route::get('/report/print-opname', [ReportController::class, 'printOpname'])->name('report.print-opname');
 });
