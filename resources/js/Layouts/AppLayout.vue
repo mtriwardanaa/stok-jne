@@ -28,9 +28,9 @@ const menuItems = [
 ]
 
 const inventoryItems = [
-    { name: 'Master Barang', route: '/barang', icon: 'barang', key: 'barang' },
     { name: 'Barang Masuk', route: '/barang-masuk', icon: 'masuk', key: 'barang-masuk' },
     { name: 'Barang Keluar', route: '/barang-keluar', icon: 'keluar', key: 'barang-keluar' },
+    { name: 'Master Barang', route: '/barang', icon: 'barang', key: 'barang' },
 ]
 
 const managementItems = [
