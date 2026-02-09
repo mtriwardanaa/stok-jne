@@ -78,8 +78,8 @@ Route::middleware(['auth'])->group(function () {
     // Supplier
     Route::get('/supplier', SupplierIndex::class)->name('supplier.index');
 
-    // Report
-    Route::get('/report', ReportIndex::class)->name('report.index');
+    // Report (Inertia)
+    Route::get('/report', [App\Http\Controllers\ReportController::class, 'index'])->name('report.index');
     Route::get('/report/print-summary', [App\Http\Controllers\ReportController::class, 'printSummary'])->name('report.print-summary');
     Route::get('/report/print-opname', [App\Http\Controllers\ReportController::class, 'printOpname'])->name('report.print-opname');
 
