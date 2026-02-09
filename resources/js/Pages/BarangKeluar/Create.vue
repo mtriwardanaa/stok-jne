@@ -36,7 +36,7 @@ const getBarangStock = (id) => {
 
 <template>
     <AppLayout title="Tambah Barang Keluar">
-        <div class="max-w-4xl mx-auto space-y-6">
+        <div class="space-y-6">
             <!-- Header -->
             <div class="flex items-center gap-4">
                 <Link href="/barang-keluar" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">

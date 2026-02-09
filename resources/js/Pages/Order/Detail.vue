@@ -50,7 +50,7 @@ const openHistoryDetail = (order) => {
 
 <template>
     <AppLayout title="Detail Order">
-        <div class="max-w-5xl mx-auto space-y-6">
+        <div class="space-y-6">
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
