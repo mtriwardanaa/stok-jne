@@ -76,8 +76,8 @@ Route::middleware(['auth'])->group(function () {
     // Order
     Route::get('/order', [OrderController::class, 'index'])->name('order.index');
     Route::get('/order/{id}', [OrderController::class, 'show'])->name('order.show');
-    Route::post('/order/{id}/approve', [OrderController::class, 'approve'])->name('order.approve');
-    Route::post('/order/{id}/reject', [OrderController::class, 'reject'])->name('order.reject');
+    Route::post('/order/{order}/approve', [OrderController::class, 'approve'])->name('order.approve');
+    Route::post('/order/{order}/reject', [OrderController::class, 'reject'])->name('order.reject');
 
     // Supplier
     Route::get('/supplier', [SupplierController::class, 'index'])->name('supplier.index');
