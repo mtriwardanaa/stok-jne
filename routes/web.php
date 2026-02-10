@@ -9,6 +9,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\StokOpnameController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\InvoiceController;
 
 
 // Public routes
@@ -61,8 +62,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/barang-keluar/create', [BarangKeluarController::class, 'create'])->name('barang-keluar.create');
     Route::post('/barang-keluar', [BarangKeluarController::class, 'store'])->name('barang-keluar.store');
     Route::get('/barang-keluar/{id}', [BarangKeluarController::class, 'show'])->name('barang-keluar.show');
+    Route::post('/barang-keluar/{id}/generate-invoice', [InvoiceController::class, 'generate'])->name('barang-keluar.generate-invoice');
+    Route::put('/invoice/{id}', [InvoiceController::class, 'update'])->name('invoice.update');
     Route::get('/barang-keluar/{id}/invoice', function ($id) {
-        $barangKeluar = \App\Models\BarangKeluar::with(['details.barang.satuan', 'order', 'createdUser', 'requestUser'])->findOrFail($id);
+        $barangKeluar = \App\Models\BarangKeluar::with(['invoice.details.barang.satuan', 'details.barang.satuan', 'order', 'createdUser', 'requestUser'])->findOrFail($id);
         return view('pdf.invoice', compact('barangKeluar'));
     })->name('barang-keluar.invoice');
     Route::get('/barang-keluar/{id}/surat-jalan', function ($id) {

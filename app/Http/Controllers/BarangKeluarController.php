@@ -107,7 +107,7 @@ class BarangKeluarController extends Controller
 
     public function show($id)
     {
-        $barangKeluar = BarangKeluar::with(['createdUser', 'requestUser', 'details.barang.satuan', 'order'])
+        $barangKeluar = BarangKeluar::with(['createdUser', 'requestUser', 'details.barang.satuan', 'order', 'invoice.details.barang.satuan'])
             ->findOrFail($id);
 
         return Inertia::render('BarangKeluar/Detail', [

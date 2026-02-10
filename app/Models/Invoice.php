@@ -30,6 +30,11 @@ class Invoice extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function details()
+    {
+        return $this->hasMany(InvoiceDetail::class, 'id_invoice');
+    }
+
     /**
      * Get status badge color for UI
      */

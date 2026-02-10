@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Invoice - {{ $barangKeluar->no_barang_keluar }}</title>
+    <title>Invoice - {{ $barangKeluar->invoice?->no_invoice ?? $barangKeluar->no_barang_keluar }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #333; padding: 20px; }
@@ -47,10 +47,13 @@
         <div class="invoice-info">
             <h2>INVOICE</h2>
             <table>
-                <tr><td>No Invoice</td><td>:</td><td><strong>{{ $barangKeluar->no_barang_keluar }}</strong></td></tr>
-                <tr><td>Tanggal</td><td>:</td><td>{{ $barangKeluar->tanggal->format('d M Y') }}</td></tr>
+                <tr><td>No Invoice</td><td>:</td><td><strong>{{ $barangKeluar->invoice?->no_invoice ?? $barangKeluar->no_barang_keluar }}</strong></td></tr>
+                <tr><td>Tanggal</td><td>:</td><td>{{ ($barangKeluar->invoice?->tanggal_invoice ?? $barangKeluar->tanggal)->format('d M Y') }}</td></tr>
                 @if($barangKeluar->order)
                 <tr><td>No Order</td><td>:</td><td>{{ $barangKeluar->order->no_order }}</td></tr>
+                @endif
+                @if($barangKeluar->invoice)
+                <tr><td>Status</td><td>:</td><td><strong>{{ strtoupper($barangKeluar->invoice->status) }}</strong></td></tr>
                 @endif
             </table>
         </div>
@@ -86,24 +89,47 @@
         </thead>
         <tbody>
             @php $total = 0; @endphp
-            @foreach($barangKeluar->details as $i => $detail)
-            @php 
-                $harga = $detail->barang?->harga_barang ?? 0;
-                $subtotal = $detail->qty_barang * $harga;
-                $total += $subtotal;
-            @endphp
-            <tr>
-                <td>{{ $i + 1 }}</td>
-                <td>
-                    <strong>{{ $detail->barang?->nama_barang }}</strong><br>
-                    <span style="color: #999; font-size: 10px;">{{ $detail->barang?->kode_barang }}</span>
-                </td>
-                <td class="text-center">{{ $detail->qty_barang }}</td>
-                <td class="text-center">{{ $detail->barang?->satuan?->nama_satuan }}</td>
-                <td class="text-right">Rp {{ number_format($harga, 0, ',', '.') }}</td>
-                <td class="text-right">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
-            </tr>
-            @endforeach
+            @if($barangKeluar->invoice && $barangKeluar->invoice->details->count() > 0)
+                {{-- Use invoice detail prices --}}
+                @foreach($barangKeluar->invoice->details as $i => $detail)
+                @php 
+                    $harga = $detail->harga ?? 0;
+                    $subtotal = $detail->qty * $harga;
+                    $total += $subtotal;
+                @endphp
+                <tr>
+                    <td>{{ $i + 1 }}</td>
+                    <td>
+                        <strong>{{ $detail->barang?->nama_barang }}</strong><br>
+                        <span style="color: #999; font-size: 10px;">{{ $detail->barang?->kode_barang }}</span>
+                    </td>
+                    <td class="text-center">{{ $detail->qty }}</td>
+                    <td class="text-center">{{ $detail->barang?->satuan?->nama_satuan }}</td>
+                    <td class="text-right">Rp {{ number_format($harga, 0, ',', '.') }}</td>
+                    <td class="text-right">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                </tr>
+                @endforeach
+            @else
+                {{-- Fallback: use barang master prices --}}
+                @foreach($barangKeluar->details as $i => $detail)
+                @php 
+                    $harga = $detail->barang?->harga_barang ?? 0;
+                    $subtotal = $detail->qty_barang * $harga;
+                    $total += $subtotal;
+                @endphp
+                <tr>
+                    <td>{{ $i + 1 }}</td>
+                    <td>
+                        <strong>{{ $detail->barang?->nama_barang }}</strong><br>
+                        <span style="color: #999; font-size: 10px;">{{ $detail->barang?->kode_barang }}</span>
+                    </td>
+                    <td class="text-center">{{ $detail->qty_barang }}</td>
+                    <td class="text-center">{{ $detail->barang?->satuan?->nama_satuan }}</td>
+                    <td class="text-right">Rp {{ number_format($harga, 0, ',', '.') }}</td>
+                    <td class="text-right">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                </tr>
+                @endforeach
+            @endif
         </tbody>
     </table>
 
