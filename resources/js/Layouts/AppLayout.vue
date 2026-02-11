@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { Link, usePage } from '@inertiajs/vue3'
+import { Head, Link, usePage } from '@inertiajs/vue3'
 
 defineProps({
     title: {
@@ -36,6 +36,7 @@ const managementItems = [
 </script>
 
 <template>
+    <Head :title="title" />
     <div class="min-h-screen bg-[#f0f4f9] overflow-x-hidden font-sans">
         
         <!-- Mobile backdrop -->
