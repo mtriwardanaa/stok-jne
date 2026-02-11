@@ -24,7 +24,7 @@ Route::post('/login', function () {
     ]);
 
     if (auth()->attempt($credentials)) {
-        if (Auth::user()->departemen_id == 10) {
+        if (auth()->user()->department_id == 10) {
             request()->session()->regenerate();
             return redirect()->intended(route('dashboard'));
         }
