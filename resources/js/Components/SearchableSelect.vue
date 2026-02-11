@@ -122,15 +122,15 @@ onUnmounted(() => {
         <!-- Dropdown -->
         <Transition
             enter-active-class="transition ease-out duration-100"
-            enter-from-class="opacity-0 scale-95"
-            enter-to-class="opacity-100 scale-100"
+            enter-from-class="opacity-0 -translate-y-1"
+            enter-to-class="opacity-100 translate-y-0"
             leave-active-class="transition ease-in duration-75"
-            leave-from-class="opacity-100 scale-100"
-            leave-to-class="opacity-0 scale-95"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 -translate-y-1"
         >
             <div
-                v-show="isOpen"
-                class="absolute z-[9999] w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden"
+                v-if="isOpen"
+                class="absolute right-0 top-full z-[9999] mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden"
                 style="min-width: 220px;"
             >
                 <!-- Search input -->
