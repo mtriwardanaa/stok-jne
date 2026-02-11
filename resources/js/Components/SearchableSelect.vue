@@ -17,6 +17,10 @@ const props = defineProps({
     searchPlaceholder: {
         type: String,
         default: 'Cari...'
+    },
+    compact: {
+        type: Boolean,
+        default: false
     }
 })
 
@@ -81,25 +85,30 @@ onUnmounted(() => {
         <button
             type="button"
             @click="toggleDropdown"
-            class="w-full flex items-center justify-between px-4 py-3 text-left bg-white border-2 rounded-xl transition-all duration-200"
-            :class="isOpen ? 'border-indigo-500 ring-4 ring-indigo-500/10' : 'border-slate-200 hover:border-slate-300'"
+            class="w-full flex items-center justify-between text-left bg-white rounded-xl transition-all duration-200 text-sm"
+            :class="[
+                compact 
+                    ? 'px-2.5 py-1.5 border border-slate-200 hover:border-slate-300' 
+                    : 'px-4 py-2.5 border border-slate-200 hover:border-slate-300',
+                isOpen ? 'border-indigo-500 ring-2 ring-indigo-500/10' : ''
+            ]"
         >
-            <span :class="modelValue ? 'text-slate-900' : 'text-slate-400'">
+            <span class="truncate" :class="modelValue ? 'text-slate-900' : 'text-slate-400'">
                 {{ selectedLabel || placeholder }}
             </span>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 ml-1 flex-shrink-0">
                 <button 
                     v-if="modelValue"
                     type="button"
                     @click.stop="clear" 
                     class="text-slate-400 hover:text-red-500 transition-colors"
                 >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
                 <svg 
-                    class="w-5 h-5 text-slate-400 transition-transform" 
+                    class="w-4 h-4 text-slate-400 transition-transform" 
                     :class="isOpen && 'rotate-180'" 
                     fill="none" 
                     stroke="currentColor" 
@@ -121,17 +130,18 @@ onUnmounted(() => {
         >
             <div
                 v-show="isOpen"
-                class="absolute z-[9999] w-full mt-2 bg-white border-2 border-slate-200 rounded-xl shadow-2xl overflow-hidden"
+                class="absolute z-[9999] w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden"
+                style="min-width: 220px;"
             >
                 <!-- Search input -->
-                <div class="p-3 border-b border-slate-100 bg-slate-50">
+                <div class="p-2.5 border-b border-slate-100 bg-slate-50">
                     <input
                         ref="inputRef"
                         v-model="search"
                         type="text"
                         :placeholder="searchPlaceholder"
                         @keydown.escape="isOpen = false"
-                        class="w-full px-3 py-2 text-sm border-2 border-slate-200 rounded-lg focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                        class="w-full px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 outline-none transition-all"
                     >
                 </div>
                 
@@ -141,7 +151,7 @@ onUnmounted(() => {
                         v-for="option in filteredOptions"
                         :key="option.value"
                         @click="selectOption(option)"
-                        class="px-4 py-3 cursor-pointer transition-colors flex items-center justify-between"
+                        class="px-3 py-2.5 cursor-pointer transition-colors flex items-center justify-between text-sm"
                         :class="String(modelValue) === String(option.value) 
                             ? 'bg-indigo-50 text-indigo-700 font-medium' 
                             : 'hover:bg-slate-50 text-slate-700'"
@@ -157,7 +167,7 @@ onUnmounted(() => {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
                     </li>
-                    <li v-if="filteredOptions.length === 0" class="px-4 py-8 text-center text-slate-400">
+                    <li v-if="filteredOptions.length === 0" class="px-4 py-6 text-center text-slate-400 text-sm">
                         Tidak ditemukan
                     </li>
                 </ul>
