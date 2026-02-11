@@ -227,11 +227,8 @@ const managementItems = [
             </main>
             
             <!-- Footer -->
-            <footer class="px-4 sm:px-6 lg:px-8 py-4 border-t border-slate-100/80 bg-white/40 backdrop-blur-sm">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-[12px] text-slate-400">
-                    <p>© {{ new Date().getFullYear() }} <span class="font-bold text-slate-500">StokGA</span> • JNE Express</p>
-                    <p>v2.0</p>
-                </div>
+            <footer class="px-4 sm:px-6 lg:px-8 py-4 border-t border-slate-100/80 bg-white/40 backdrop-blur-sm text-center">
+                <p>Copyright © {{ new Date().getFullYear() }} <span class="font-bold text-slate-500">batsolution.id</span>. Development by <a href="#" class="font-semibold text-blue-500 hover:text-blue-600 transition-colors">Borneo Algorithm Technology</a> All rights reserved</p>
             </footer>
         </div>
     </div>
