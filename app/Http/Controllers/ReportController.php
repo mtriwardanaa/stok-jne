@@ -7,6 +7,7 @@ use App\Models\BarangKeluar;
 use App\Models\Department;
 use App\Models\Group;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ReportController extends Controller
@@ -161,7 +162,62 @@ class ReportController extends Controller
     
     public function printOpname(Request $request)
     {
-        // Existing print opname logic can be added here
-        return view('pdf.report-opname');
+        $month = $request->get('month', now()->month);
+        $year = $request->get('year', now()->year);
+        $koordinator = $request->get('koordinator', '');
+        $auditor = $request->get('auditor', '');
+
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+        ];
+        $monthName = $monthNames[(int)$month] ?? '';
+
+        $barangs = DB::table('stok_barang')
+            ->leftJoin('stok_barang_satuan', 'stok_barang.id_barang_satuan', '=', 'stok_barang_satuan.id')
+            ->select('stok_barang.*', 'stok_barang_satuan.nama_satuan')
+            ->orderBy('stok_barang.nama_barang')
+            ->get();
+
+        $data = $barangs->map(function ($barang) use ($month, $year) {
+            $stokMasuk = DB::table('stok_barang_masuk_detail')
+                ->join('stok_barang_masuk', 'stok_barang_masuk.id', '=', 'stok_barang_masuk_detail.id_barang_masuk')
+                ->where('stok_barang_masuk_detail.id_barang', $barang->id)
+                ->whereMonth('stok_barang_masuk.tanggal', $month)
+                ->whereYear('stok_barang_masuk.tanggal', $year)
+                ->whereNull('stok_barang_masuk.deleted_at')
+                ->sum('stok_barang_masuk_detail.qty_barang');
+
+            $stokKeluar = DB::table('stok_barang_keluar_detail')
+                ->join('stok_barang_keluar', 'stok_barang_keluar.id', '=', 'stok_barang_keluar_detail.id_barang_keluar')
+                ->where('stok_barang_keluar_detail.id_barang', $barang->id)
+                ->whereMonth('stok_barang_keluar.tanggal', $month)
+                ->whereYear('stok_barang_keluar.tanggal', $year)
+                ->whereNull('stok_barang_keluar.deleted_at')
+                ->sum('stok_barang_keluar_detail.qty_barang');
+
+            $totalMasuk = DB::table('stok_barang_masuk_detail')
+                ->where('id_barang', $barang->id)
+                ->sum('qty_barang');
+            $totalKeluar = DB::table('stok_barang_keluar_detail')
+                ->where('id_barang', $barang->id)
+                ->sum('qty_barang');
+
+            $stokAkhir = $totalMasuk - $totalKeluar;
+            $stokAwal = $stokAkhir - $stokMasuk + $stokKeluar;
+
+            return [
+                'kode' => $barang->kode_barang,
+                'nama' => $barang->nama_barang,
+                'satuan' => $barang->nama_satuan ?? '-',
+                'stok_awal' => $stokAwal,
+                'masuk' => $stokMasuk,
+                'keluar' => $stokKeluar,
+                'stok_akhir' => $stokAkhir,
+            ];
+        });
+
+        return view('pdf.report-opname', compact('data', 'monthName', 'year', 'koordinator', 'auditor'));
     }
 }
