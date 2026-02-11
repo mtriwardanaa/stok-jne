@@ -24,8 +24,13 @@ Route::post('/login', function () {
     ]);
 
     if (auth()->attempt($credentials)) {
-        request()->session()->regenerate();
-        return redirect()->intended(route('dashboard'));
+        if (Auth::user()->departemen_id == 10) {
+            request()->session()->regenerate();
+            return redirect()->intended(route('dashboard'));
+        }
+
+        Auth::logout();
+        return redirect()->route('login')->withErrors('Anda tidak mempunyak akses ke halaman dashboard')->withInput();
     }
 
     return back()->withErrors([
