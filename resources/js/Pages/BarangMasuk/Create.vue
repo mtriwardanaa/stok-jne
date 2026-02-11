@@ -130,11 +130,11 @@ const totalNilai = () => {
                             <div class="border border-slate-200 rounded-xl">
                                 <!-- Table Header -->
                                 <div class="grid grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200 rounded-t-xl">
-                                    <div class="col-span-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">#</div>
-                                    <div class="col-span-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Barang</div>
-                                    <div class="col-span-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Supplier</div>
-                                    <div class="col-span-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Qty</div>
-                                    <div class="col-span-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Harga Satuan</div>
+                                    <div class="col-span-1 text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">#</div>
+                                    <div class="col-span-4 text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Barang</div>
+                                    <div class="col-span-3 text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Supplier</div>
+                                    <div class="col-span-1 text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Qty</div>
+                                    <div class="col-span-2 text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Harga Satuan</div>
                                     <div class="col-span-1"></div>
                                 </div>
 
