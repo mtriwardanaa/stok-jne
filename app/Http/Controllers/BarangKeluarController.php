@@ -6,6 +6,9 @@ use App\Models\Barang;
 use App\Models\BarangHarga;
 use App\Models\BarangKeluar;
 use App\Models\BarangKeluarDetail;
+use App\Models\Department;
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -41,6 +44,9 @@ class BarangKeluarController extends Controller
     {
         return Inertia::render('BarangKeluar/Create', [
             'barangList' => Barang::with('satuan')->where('qty_barang', '>', 0)->orderBy('nama_barang')->get(),
+            'departments' => Department::orderBy('name')->get(),
+            'groups' => Group::with('partner')->orderBy('name')->get(),
+            'users' => User::select('id', 'name', 'department_id', 'group_id', 'type')->orderBy('name')->get(),
         ]);
     }
 
@@ -48,7 +54,8 @@ class BarangKeluarController extends Controller
     {
         $validated = $request->validate([
             'tanggal' => 'required|date',
-            'nama_user_request' => 'required|string|max:255',
+            'nama_user_request' => 'nullable|string|max:255',
+            'id_agen' => 'nullable|exists:' . config('database.connections.sso_mysql.database') . '.users,id',
             'items' => 'required|array|min:1',
             'items.*.id_barang' => 'required|exists:stok_barang,id',
             'items.*.qty_barang' => 'required|integer|min:1',
@@ -58,10 +65,20 @@ class BarangKeluarController extends Controller
         try {
             $user = Auth::user();
 
+            // Get nama_user_request from selected user or manual input
+            $namaUserRequest = $validated['nama_user_request'] ?? '';
+            if (!empty($validated['id_agen'])) {
+                $agenUser = User::find($validated['id_agen']);
+                if ($agenUser) {
+                    $namaUserRequest = $agenUser->name;
+                }
+            }
+
             $barangKeluar = BarangKeluar::create([
                 'no_barang_keluar' => 'NBK-' . date('md') . '-' . $user->id . date('His'),
                 'tanggal' => $validated['tanggal'],
-                'nama_user_request' => $validated['nama_user_request'],
+                'id_agen' => $validated['id_agen'] ?? null,
+                'nama_user_request' => $namaUserRequest,
                 'created_by' => $user->id,
             ]);
 
