@@ -448,12 +448,12 @@ const formatNumber = (value) => {
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead>
-                            <tr class="border-b border-slate-100 bg-slate-50/50">
-                                <th class="px-6 py-3.5 text-[10px] uppercase tracking-[0.12em] font-bold text-slate-400">No Order</th>
-                                <th class="px-6 py-3.5 text-[10px] uppercase tracking-[0.12em] font-bold text-slate-400">Pemohon</th>
-                                <th class="px-6 py-3.5 text-[10px] uppercase tracking-[0.12em] font-bold text-slate-400">Tanggal</th>
-                                <th class="px-6 py-3.5 text-[10px] uppercase tracking-[0.12em] font-bold text-slate-400">Items</th>
-                                <th class="px-6 py-3.5 text-[10px] uppercase tracking-[0.12em] font-bold text-slate-400">Status</th>
+                            <tr class="border-b border-indigo-200 bg-indigo-100">
+                                <th class="px-6 py-3.5 text-[11px] uppercase tracking-wider font-semibold text-indigo-800">No Order</th>
+                                <th class="px-6 py-3.5 text-[11px] uppercase tracking-wider font-semibold text-indigo-800">Pemohon</th>
+                                <th class="px-6 py-3.5 text-[11px] uppercase tracking-wider font-semibold text-indigo-800">Tanggal</th>
+                                <th class="px-6 py-3.5 text-[11px] uppercase tracking-wider font-semibold text-indigo-800">Items</th>
+                                <th class="px-6 py-3.5 text-[11px] uppercase tracking-wider font-semibold text-indigo-800">Status</th>
                                 <th class="px-6 py-3.5"></th>
                             </tr>
                         </thead>

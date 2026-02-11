@@ -218,15 +218,15 @@ const printReport = () => {
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200">
-                                <th class="px-4 py-3 text-xs font-bold text-slate-600 uppercase">Tanggal</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-600 uppercase">No. Keluar</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-600 uppercase">Kode</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-600 uppercase">Nama Barang</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-600 uppercase">Penerima/Divisi/Group</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-600 uppercase text-center">Qty</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-600 uppercase text-right">Harga</th>
-                                <th class="px-4 py-3 text-xs font-bold text-slate-600 uppercase text-right">Nilai</th>
+                            <tr class="bg-indigo-100 border-b border-indigo-200">
+                                <th class="px-4 py-3 text-[11px] font-semibold text-indigo-800 uppercase">Tanggal</th>
+                                <th class="px-4 py-3 text-[11px] font-semibold text-indigo-800 uppercase">No. Keluar</th>
+                                <th class="px-4 py-3 text-[11px] font-semibold text-indigo-800 uppercase">Kode</th>
+                                <th class="px-4 py-3 text-[11px] font-semibold text-indigo-800 uppercase">Nama Barang</th>
+                                <th class="px-4 py-3 text-[11px] font-semibold text-indigo-800 uppercase">Penerima/Divisi/Group</th>
+                                <th class="px-4 py-3 text-[11px] font-semibold text-indigo-800 uppercase text-center">Qty</th>
+                                <th class="px-4 py-3 text-[11px] font-semibold text-indigo-800 uppercase text-right">Harga</th>
+                                <th class="px-4 py-3 text-[11px] font-semibold text-indigo-800 uppercase text-right">Nilai</th>
                             </tr>
                         </thead>
                         <tbody>
