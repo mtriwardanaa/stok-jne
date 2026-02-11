@@ -11,8 +11,8 @@ const props = defineProps({
 
 const month = ref(props.filters.month)
 const year = ref(props.filters.year)
-const koordinatorGA = ref('')
-const auditInternal = ref('')
+const koordinatorGA = ref('Heri Setiawan')
+const auditInternal = ref('M. Ramdani')
 
 const months = [
     { value: 1, label: 'Januari' }, { value: 2, label: 'Februari' }, { value: 3, label: 'Maret' },
