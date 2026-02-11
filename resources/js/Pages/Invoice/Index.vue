@@ -100,9 +100,6 @@ const getTotalQty = (details) => {
                                     class="pl-10 pr-4 py-2.5 w-52 border-0 bg-slate-100/80 rounded-xl text-sm focus:ring-2 focus:ring-amber-500/30 focus:bg-white transition-all placeholder:text-slate-400">
                             </div>
                             <div class="w-36">
-                                <SearchableSelect v-model="status" :options="statusOptions" placeholder="Status" @update:modelValue="applyFilter" />
-                            </div>
-                            <div class="w-36">
                                 <SearchableSelect v-model="month" :options="months" placeholder="📅 Bulan" @update:modelValue="applyFilter" />
                             </div>
                             <div class="w-28">
@@ -134,9 +131,6 @@ const getTotalQty = (details) => {
                                 <th class="px-6 py-4 text-right">
                                     <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total</span>
                                 </th>
-                                <th class="px-6 py-4 text-center">
-                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</span>
-                                </th>
                                 <th class="px-6 py-4 text-left">
                                     <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Dibuat</span>
                                 </th>
@@ -166,18 +160,6 @@ const getTotalQty = (details) => {
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <span class="text-sm font-semibold text-slate-800">{{ formatCurrency(getTotal(inv.details)) }}</span>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span v-if="inv.status === 'paid'"
-                                        class="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full text-xs font-bold shadow-sm shadow-green-500/25">
-                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
-                                        Paid
-                                    </span>
-                                    <span v-else
-                                        class="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-full text-xs font-bold shadow-sm shadow-red-500/25">
-                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4m0 4h.01" /></svg>
-                                        Unpaid
-                                    </span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">

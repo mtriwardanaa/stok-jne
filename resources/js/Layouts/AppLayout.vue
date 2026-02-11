@@ -24,12 +24,12 @@ const isActive = (routeName) => {
 const inventoryItems = [
     { name: 'Barang Masuk', route: '/barang-masuk', icon: 'masuk', key: 'barang-masuk' },
     { name: 'Barang Keluar', route: '/barang-keluar', icon: 'keluar', key: 'barang-keluar' },
+    { name: 'Invoice', route: '/invoice', icon: 'invoice', key: 'invoice' },
     { name: 'Master Barang', route: '/barang', icon: 'barang', key: 'barang' },
 ]
 
 const managementItems = [
     { name: 'Supplier', route: '/supplier', icon: 'supplier', key: 'supplier' },
-    { name: 'Invoice', route: '/invoice', icon: 'invoice', key: 'invoice' },
     { name: 'Laporan', route: '/report', icon: 'report', key: 'report' },
     { name: 'Stock Opname', route: '/stok-opname', icon: 'opname', key: 'stok-opname' },
 ]
@@ -213,51 +213,15 @@ const managementItems = [
 
         <!-- ═══════════════════════════════ MAIN ═══════════════════════════════ -->
         <div class="lg:pl-[260px] min-h-screen flex flex-col">
-            
-            <!-- Header -->
-            <header class="sticky top-0 z-30 bg-white/70 backdrop-blur-2xl border-b border-slate-200/50">
-                <div class="flex items-center justify-between h-[72px] px-4 sm:px-6 lg:px-8">
-                    <div class="flex items-center gap-4">
-                        <!-- Mobile hamburger -->
-                        <button @click="sidebarOpen = true" class="p-2 -ml-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl lg:hidden transition-all">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        </button>
-                        
-                        <!-- Breadcrumb & Title -->
-                        <div>
-                            <div class="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400 mb-0.5">
-                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                </svg>
-                                <span>/ {{ title }}</span>
-                            </div>
-                            <h1 class="text-lg font-extrabold text-slate-800 tracking-tight">{{ title }}</h1>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center gap-1.5">
-                        <!-- Notification bell -->
-                        <button class="relative p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 rounded-xl transition-all">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                            <span v-if="pendingCount > 0" class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white animate-pulse"></span>
-                        </button>
-                        
-                        <!-- Mobile avatar -->
-                        <div v-if="user" class="lg:hidden">
-                            <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center text-white text-[10px] font-bold shadow-md shadow-indigo-500/20">
-                                {{ user.name?.substring(0, 2).toUpperCase() || 'U' }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
 
             <!-- Page Content -->
             <main class="flex-1 p-4 sm:p-6 lg:p-8">
+                <!-- Mobile hamburger -->
+                <button @click="sidebarOpen = true" class="mb-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-white rounded-xl lg:hidden transition-all shadow-sm">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
                 <slot />
             </main>
             
