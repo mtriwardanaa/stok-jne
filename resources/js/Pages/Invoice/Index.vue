@@ -115,24 +115,24 @@ const getTotalQty = (details) => {
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead>
-                            <tr class="bg-gradient-to-r from-slate-50 to-slate-100/50">
+                            <tr class="bg-gradient-to-r from-slate-100 to-slate-50 border-b border-slate-200">
                                 <th class="px-6 py-4 text-left">
-                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">No. Invoice</span>
+                                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">No. Invoice</span>
                                 </th>
                                 <th class="px-6 py-4 text-left">
-                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tanggal</span>
+                                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Tanggal</span>
                                 </th>
                                 <th class="px-6 py-4 text-left">
-                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">No. Brg Keluar</span>
+                                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">No. Brg Keluar</span>
                                 </th>
                                 <th class="px-6 py-4 text-center">
-                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Items</span>
+                                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Items</span>
                                 </th>
                                 <th class="px-6 py-4 text-right">
-                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total</span>
+                                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Total</span>
                                 </th>
                                 <th class="px-6 py-4 text-left">
-                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Dibuat</span>
+                                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Dibuat</span>
                                 </th>
                                 <th class="px-6 py-4 w-16"></th>
                             </tr>

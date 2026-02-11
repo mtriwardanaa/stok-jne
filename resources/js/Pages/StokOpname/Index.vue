@@ -201,15 +201,15 @@ const formatDate = (dateStr) => {
             <div v-show="activeTab === 'history'" class="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-200/50 overflow-hidden">
                 <div v-if="opnameHistory?.length > 0" class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead class="bg-gradient-to-r from-slate-50 to-slate-100/50">
+                        <thead class="bg-gradient-to-r from-slate-100 to-slate-50 border-b border-slate-200">
                             <tr>
-                                <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">No Opname</th>
-                                <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tanggal</th>
-                                <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Barang</th>
-                                <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Stok Sistem</th>
-                                <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Stok Fisik</th>
-                                <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Selisih</th>
-                                <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Adjustment</th>
+                                <th class="px-6 py-4 text-[11px] font-bold text-slate-600 uppercase tracking-wider">No Opname</th>
+                                <th class="px-6 py-4 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Tanggal</th>
+                                <th class="px-6 py-4 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Barang</th>
+                                <th class="px-6 py-4 text-[11px] font-bold text-slate-600 uppercase tracking-wider text-center">Stok Sistem</th>
+                                <th class="px-6 py-4 text-[11px] font-bold text-slate-600 uppercase tracking-wider text-center">Stok Fisik</th>
+                                <th class="px-6 py-4 text-[11px] font-bold text-slate-600 uppercase tracking-wider text-center">Selisih</th>
+                                <th class="px-6 py-4 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Adjustment</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
