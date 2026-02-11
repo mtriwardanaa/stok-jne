@@ -38,7 +38,7 @@
         <button onclick="window.print()" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">
             🖨️ Print Report
         </button>
-        <button onclick="history.back()" style="padding: 8px 16px; background: #6b7280; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; font-size: 12px;">
+        <button onclick="window.close(); if(!window.closed) history.back();" style="padding: 8px 16px; background: #6b7280; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; font-size: 12px;">
             ✕ Tutup
         </button>
     </div>

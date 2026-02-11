@@ -135,11 +135,28 @@ class ReportController extends Controller
         
         $summaryData = $this->getSummaryData($dateFrom, $dateTo, $filter, $divisi, $partner, $barang);
         
+        $data = $summaryData['data'];
+        $totalQty = $summaryData['total_qty'];
+        $totalNilai = $summaryData['total_nilai'];
+        
         $department = $divisi ? Department::find($divisi) : null;
         $group = $partner ? Group::find($partner) : null;
         $barangItem = $barang ? Barang::find($barang) : null;
         
-        return view('pdf.report-summary', compact('summaryData', 'dateFrom', 'dateTo', 'filter', 'department', 'group', 'barangItem'));
+        // Build filter label
+        $filterParts = [];
+        if ($department) {
+            $filterParts[] = 'Divisi: ' . $department->name;
+        }
+        if ($group) {
+            $filterParts[] = 'Partner: ' . $group->name;
+        }
+        if ($barangItem) {
+            $filterParts[] = 'Barang: ' . $barangItem->nama_barang;
+        }
+        $filterLabel = !empty($filterParts) ? implode(' | ', $filterParts) : 'Semua Data';
+        
+        return view('pdf.report-summary', compact('data', 'totalQty', 'totalNilai', 'dateFrom', 'dateTo', 'filterLabel'));
     }
     
     public function printOpname(Request $request)
