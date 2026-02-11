@@ -8,9 +8,42 @@ use App\Models\InvoiceDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class InvoiceController extends Controller
 {
+    /**
+     * List all invoices
+     */
+    public function index(Request $request)
+    {
+        $query = Invoice::with(['barangKeluar', 'details.barang', 'createdUser'])
+            ->latest('tanggal_invoice');
+
+        if ($request->filled('search')) {
+            $query->where('no_invoice', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('month')) {
+            $query->whereMonth('tanggal_invoice', $request->month);
+        }
+
+        if ($request->filled('year')) {
+            $query->whereYear('tanggal_invoice', $request->year);
+        }
+
+        $invoices = $query->paginate(15)->withQueryString();
+
+        return Inertia::render('Invoice/Index', [
+            'invoices' => $invoices,
+            'filters' => $request->only(['search', 'status', 'month', 'year']),
+        ]);
+    }
+
     /**
      * Generate invoice from barang keluar
      * Pre-fills prices from barang master data

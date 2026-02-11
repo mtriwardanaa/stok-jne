@@ -69,6 +69,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/barang-keluar/{id}', [BarangKeluarController::class, 'show'])->name('barang-keluar.show');
     Route::post('/barang-keluar/{id}/generate-invoice', [InvoiceController::class, 'generate'])->name('barang-keluar.generate-invoice');
     Route::put('/invoice/{id}', [InvoiceController::class, 'update'])->name('invoice.update');
+    Route::get('/invoice', [InvoiceController::class, 'index'])->name('invoice.index');
     Route::get('/barang-keluar/{id}/invoice', function ($id) {
         $barangKeluar = \App\Models\BarangKeluar::with(['invoice.details.barang.satuan', 'details.barang.satuan', 'order', 'createdUser', 'requestUser'])->findOrFail($id);
         return view('pdf.invoice', compact('barangKeluar'));
