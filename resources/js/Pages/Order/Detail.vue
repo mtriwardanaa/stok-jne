@@ -96,8 +96,8 @@ const openHistoryDetail = (order) => {
                     <span class="text-sm text-slate-500">{{ order.details?.length || 0 }} item</span>
                 </div>
                 <table class="w-full text-left">
-                    <thead class="bg-slate-50 border-b border-slate-100">
-                        <tr class="text-xs font-bold text-slate-500 uppercase">
+                    <thead class="bg-indigo-100 border-b border-indigo-200">
+                        <tr class="text-[11px] font-semibold text-indigo-800 uppercase">
                             <th class="px-6 py-3">#</th>
                             <th class="px-6 py-3">Barang</th>
                             <th class="px-6 py-3">Satuan</th>
@@ -209,7 +209,7 @@ const openHistoryDetail = (order) => {
                 <div class="relative bg-white rounded-2xl shadow-xl max-w-lg w-full p-6">
                     <h3 class="text-lg font-bold text-slate-800 mb-4">{{ historyOrder.no_order }}</h3>
                     <table class="w-full text-sm">
-                        <thead class="bg-slate-50">
+                        <thead class="bg-indigo-100 border-b border-indigo-200">
                             <tr><th class="px-3 py-2 text-left">Barang</th><th class="px-3 py-2 text-center">Qty</th></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">

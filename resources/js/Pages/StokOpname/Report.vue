@@ -83,8 +83,8 @@ const printReport = () => {
             <!-- Report Table -->
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-50 border-b border-slate-100">
-                        <tr class="text-xs font-bold text-slate-500 uppercase">
+                    <thead class="bg-indigo-100 border-b border-indigo-200">
+                        <tr class="text-[11px] font-semibold text-indigo-800 uppercase">
                             <th class="px-4 py-3">#</th>
                             <th class="px-4 py-3">Kode</th>
                             <th class="px-4 py-3">Nama Barang</th>

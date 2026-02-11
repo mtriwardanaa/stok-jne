@@ -193,13 +193,13 @@ const filterTabs = [
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-50/80 border-b border-slate-100">
-                                <th class="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider pl-8">Informasi Barang</th>
-                                <th class="px-6 py-5 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Satuan</th>
-                                <th class="px-6 py-5 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Ketersediaan</th>
-                                <th class="px-6 py-5 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Harga Satuan</th>
-                                <th class="px-6 py-5 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-5 text-center text-xs font-bold text-slate-500 uppercase tracking-wider w-32">Aksi</th>
+                            <tr class="bg-indigo-100 border-b border-indigo-200">
+                                <th class="px-6 py-5 text-[11px] font-semibold text-indigo-800 uppercase tracking-wider pl-8">Informasi Barang</th>
+                                <th class="px-6 py-5 text-center text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Satuan</th>
+                                <th class="px-6 py-5 text-center text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Ketersediaan</th>
+                                <th class="px-6 py-5 text-right text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Harga Satuan</th>
+                                <th class="px-6 py-5 text-center text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-5 text-center text-[11px] font-semibold text-indigo-800 uppercase tracking-wider w-32">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 bg-white">

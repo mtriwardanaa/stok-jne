@@ -58,8 +58,8 @@ const totalNilai = () => {
                     <h3 class="font-bold text-slate-800">Detail Item</h3>
                 </div>
                 <table class="w-full text-left">
-                    <thead class="bg-slate-50 border-b border-slate-100">
-                        <tr class="text-xs font-bold text-slate-500 uppercase">
+                    <thead class="bg-indigo-100 border-b border-indigo-200">
+                        <tr class="text-[11px] font-semibold text-indigo-800 uppercase">
                             <th class="px-6 py-3">#</th>
                             <th class="px-6 py-3">Barang</th>
                             <th class="px-6 py-3">Supplier</th>
