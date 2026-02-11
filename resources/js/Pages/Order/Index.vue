@@ -131,23 +131,23 @@ const getStatusColor = (s) => {
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead>
-                            <tr class="bg-gradient-to-r from-slate-100 to-slate-50 border-b border-slate-200">
-                                <th class="px-6 py-4 text-left">
-                                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">No. Order</span>
+                            <tr class="bg-gradient-to-r from-indigo-600 to-indigo-500">
+                                <th class="px-6 py-3.5 text-left">
+                                    <span class="text-[11px] font-semibold text-white uppercase tracking-wider">No. Order</span>
                                 </th>
-                                <th class="px-6 py-4 text-left">
-                                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Tanggal</span>
+                                <th class="px-6 py-3.5 text-left">
+                                    <span class="text-[11px] font-semibold text-white uppercase tracking-wider">Tanggal</span>
                                 </th>
-                                <th class="px-6 py-4 text-left">
-                                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Pemohon</span>
+                                <th class="px-6 py-3.5 text-left">
+                                    <span class="text-[11px] font-semibold text-white uppercase tracking-wider">Pemohon</span>
                                 </th>
-                                <th class="px-6 py-4 text-center">
-                                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Items</span>
+                                <th class="px-6 py-3.5 text-center">
+                                    <span class="text-[11px] font-semibold text-white uppercase tracking-wider">Items</span>
                                 </th>
-                                <th class="px-6 py-4 text-center">
-                                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Status</span>
+                                <th class="px-6 py-3.5 text-center">
+                                    <span class="text-[11px] font-semibold text-white uppercase tracking-wider">Status</span>
                                 </th>
-                                <th class="px-6 py-4 w-16"></th>
+                                <th class="px-6 py-3.5 w-16"></th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
