@@ -31,7 +31,7 @@ class MigrateStep1Users extends Command
     public function handle()
     {
         $dryRun = $this->option('dry-run');
-        $skipRestore = $this->option('skip-restore');
+        $skipRestore = true;
         $showBackup = $this->option('show-backup');
         
         $this->info('===========================================');
@@ -279,6 +279,9 @@ class MigrateStep1Users extends Command
         $stats = ['found' => 0, 'same_id' => 0, 'created' => 0];
 
         foreach ($oldUsers as $old) {
+            if ($old->username == 'tobib') {
+                dd($old);
+            }
             $ssoUser = $ssoUsers->get($old->username);
             $isPartner = in_array($old->id_divisi, $this->partnerDivisiIds);
             
