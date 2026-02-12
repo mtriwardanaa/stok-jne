@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Link, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 
@@ -34,7 +34,18 @@ const getStatusColor = (s) => {
     return colors[s] || 'bg-slate-100 text-slate-800'
 }
 
+const isQtyOverStock = (detail) => {
+    const qty = approvedQtyLocal.value[detail.id] || 0
+    const stock = detail.barang?.qty_barang || 0
+    return qty > stock
+}
+
+const hasStockError = computed(() => {
+    return props.order.details?.some(d => isQtyOverStock(d)) || false
+})
+
 const approve = () => {
+    if (hasStockError.value) return
     useForm({ approvedQty: approvedQtyLocal.value }).post(`/order/${props.order.id}/approve`)
 }
 
@@ -122,8 +133,14 @@ const openHistoryDetail = (order) => {
                                 </span>
                             </td>
                             <td v-if="order.status === 'menunggu'" class="px-6 py-4 text-center">
-                                <input type="number" v-model="approvedQtyLocal[detail.id]" :max="Math.min(detail.qty_barang, detail.barang?.qty_barang || 0)" min="0" 
-                                    class="w-20 px-2 py-1 text-center border border-slate-200 rounded-lg text-sm">
+                                <div>
+                                    <input type="number" v-model="approvedQtyLocal[detail.id]" :max="Math.min(detail.qty_barang, detail.barang?.qty_barang || 0)" min="0" 
+                                        class="w-20 px-2 py-1 text-center border rounded-lg text-sm transition-colors"
+                                        :class="isQtyOverStock(detail) 
+                                            ? 'border-rose-400 bg-rose-50 text-rose-700' 
+                                            : 'border-slate-200'">
+                                    <p v-if="isQtyOverStock(detail)" class="text-[10px] text-rose-500 font-medium mt-1">⚠ Melebihi stok!</p>
+                                </div>
                             </td>
                             <td v-if="order.status === 'selesai'" class="px-6 py-4 text-center font-semibold text-emerald-600">
                                 {{ detail.qty_approved || 0 }}
@@ -138,7 +155,7 @@ const openHistoryDetail = (order) => {
                 <button @click="showRejectModal = true" class="px-6 py-2.5 border border-rose-200 text-rose-600 rounded-xl font-semibold hover:bg-rose-50 transition-colors">
                     Tolak Order
                 </button>
-                <button @click="showApproveModal = true" class="px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors">
+                <button @click="showApproveModal = true" :disabled="hasStockError" class="px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                     Approve Order
                 </button>
             </div>

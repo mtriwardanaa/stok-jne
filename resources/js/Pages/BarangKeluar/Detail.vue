@@ -132,7 +132,7 @@ const getInvoiceTotal = () => {
 
             <!-- Info Card -->
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
                     <div>
                         <p class="text-xs text-slate-500 font-medium uppercase mb-1">No. Barang Keluar</p>
                         <p class="font-semibold text-slate-800">{{ barangKeluar.no_barang_keluar }}</p>
@@ -140,6 +140,10 @@ const getInvoiceTotal = () => {
                     <div>
                         <p class="text-xs text-slate-500 font-medium uppercase mb-1">Tanggal</p>
                         <p class="font-semibold text-slate-800">{{ formatDate(barangKeluar.tanggal) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium uppercase mb-1">Penerima</p>
+                        <p class="font-semibold text-slate-800">{{ barangKeluar.nama_user_request || '-' }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-500 font-medium uppercase mb-1">Dibuat oleh</p>

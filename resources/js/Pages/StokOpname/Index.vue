@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useForm, router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import SearchableSelect from '@/Components/SearchableSelect.vue'
@@ -16,15 +16,71 @@ const month = ref(props.filters.month)
 const year = ref(props.filters.year)
 const search = ref(props.filters.search)
 
-const showModal = ref(false)
-const selectedBarang = ref(null)
+// Bulk opname data: track stok_fisik per barang
+const bulkData = ref({})
 
-const form = useForm({
-    id_barang: '',
-    stok_fisik: 0,
-    alasan: '',
-    foto_bukti: null,
+// Initialize bulkData with current stok_sistem values
+const initBulkData = () => {
+    const data = {}
+    props.barangsWithStock?.forEach(b => {
+        data[b.id] = {
+            stok_fisik: b.stok_sistem,
+            changed: false,
+        }
+    })
+    bulkData.value = data
+}
+initBulkData()
+
+const alasan = ref('')
+
+const onStokFisikChange = (barangId, stokSistem) => {
+    if (bulkData.value[barangId]) {
+        const val = parseInt(bulkData.value[barangId].stok_fisik) || 0
+        bulkData.value[barangId].changed = val !== stokSistem
+    }
+}
+
+const getSelisih = (barangId, stokSistem) => {
+    const fisik = parseInt(bulkData.value[barangId]?.stok_fisik) || 0
+    return fisik - stokSistem
+}
+
+// Items that have a selisih (and not already opnamed this month)
+const changedItems = computed(() => {
+    return props.barangsWithStock?.filter(b => {
+        if (b.has_opname_this_month) return false
+        const sel = getSelisih(b.id, b.stok_sistem)
+        return sel !== 0
+    }) || []
 })
+
+const isSubmitting = ref(false)
+
+const submitBulk = () => {
+    if (changedItems.value.length === 0) return
+    if (!alasan.value || alasan.value.length < 10) return
+
+    isSubmitting.value = true
+
+    const items = changedItems.value.map(b => ({
+        id_barang: b.id,
+        stok_fisik: parseInt(bulkData.value[b.id]?.stok_fisik) || 0,
+    }))
+
+    router.post('/stok-opname/bulk', {
+        alasan: alasan.value,
+        items: items,
+    }, {
+        onFinish: () => {
+            isSubmitting.value = false
+        },
+        onSuccess: () => {
+            alasan.value = ''
+            initBulkData()
+        },
+    })
+}
 
 const months = [
     { value: 1, label: 'Januari' }, { value: 2, label: 'Februari' }, { value: 3, label: 'Maret' },
@@ -45,41 +101,30 @@ watch(search, () => {
     searchTimeout = setTimeout(applyFilter, 300)
 })
 
-const openModal = (barang) => {
-    selectedBarang.value = barang
-    form.reset()
-    form.id_barang = barang.id
-    form.stok_fisik = barang.stok_sistem
-    showModal.value = true
-}
-
-const selisih = () => form.stok_fisik - (selectedBarang.value?.stok_sistem || 0)
-
-const handleFileChange = (e) => {
-    form.foto_bukti = e.target.files[0]
-}
-
-const submit = () => {
-    form.post('/stok-opname', {
-        onSuccess: () => {
-            showModal.value = false
-        },
-    })
-}
-
 const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
+
+// Filtered barang list for the table
+const filteredBarangs = computed(() => {
+    if (!search.value) return props.barangsWithStock || []
+    const s = search.value.toLowerCase()
+    return (props.barangsWithStock || []).filter(b =>
+        b.nama_barang.toLowerCase().includes(s) || b.kode_barang?.toLowerCase().includes(s)
+    )
+})
 </script>
 
 <template>
     <AppLayout title="Stock Opname">
         <div class="space-y-6">
             <!-- Flash Message -->
-            <div v-if="$page.props.flash?.success" class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium">
+            <div v-if="$page.props.flash?.success" class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium flex items-center gap-3">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                 {{ $page.props.flash.success }}
             </div>
-            <div v-if="$page.props.flash?.error" class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium">
+            <div v-if="$page.props.flash?.error" class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium flex items-center gap-3">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                 {{ $page.props.flash.error }}
             </div>
 
@@ -103,7 +148,7 @@ const formatDate = (dateStr) => {
                             </div>
                             <div>
                                 <h2 class="text-2xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-600 bg-clip-text text-transparent">Stock Opname</h2>
-                                <p class="text-sm text-slate-500 mt-0.5">Sesuaikan stok fisik dengan stok sistem</p>
+                                <p class="text-sm text-slate-500 mt-0.5">Isi stok fisik langsung — bisa banyak item sekaligus</p>
                             </div>
                         </div>
                         
@@ -140,10 +185,9 @@ const formatDate = (dateStr) => {
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                 </svg>
-                                Pilih Barang
-                                <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold" 
-                                    :class="activeTab === 'barang' ? 'bg-violet-100 text-violet-600' : 'bg-slate-200/80 text-slate-500'">
-                                    {{ barangsWithStock?.length || 0 }}
+                                Input Opname
+                                <span v-if="changedItems.length > 0" class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-violet-100 text-violet-600">
+                                    {{ changedItems.length }} diubah
                                 </span>
                             </button>
                             <button @click="activeTab = 'history'"
@@ -165,34 +209,127 @@ const formatDate = (dateStr) => {
                 </div>
             </div>
 
-            <!-- Tab Content: Barang List -->
-            <div v-show="activeTab === 'barang'" class="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-200/50 overflow-hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
-                    <div v-for="barang in barangsWithStock" :key="barang.id" 
-                        @click="!barang.has_opname_this_month && openModal(barang)"
-                        class="p-4 rounded-xl border-2 transition-all cursor-pointer"
-                        :class="barang.has_opname_this_month ? 'border-slate-100 bg-slate-50/50 opacity-60 cursor-not-allowed' : 'border-slate-200 hover:border-violet-400 hover:bg-violet-50/30 hover:shadow-lg'">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1 min-w-0">
-                                <p class="font-semibold text-slate-800 truncate">{{ barang.nama_barang }}</p>
-                                <p class="text-xs text-slate-500 mt-0.5">{{ barang.kode_barang }}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-xl font-bold" :class="barang.stok_sistem <= 0 ? 'text-rose-500' : 'text-slate-800'">{{ barang.stok_sistem }}</p>
-                                <p class="text-[10px] text-slate-400 uppercase tracking-wide">Stok Sistem</p>
-                            </div>
+            <!-- Tab Content: Bulk Opname Table -->
+            <div v-show="activeTab === 'barang'" class="space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-200/50 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-gradient-to-r from-violet-50 to-fuchsia-50 border-b border-violet-100">
+                                <tr>
+                                    <th class="px-5 py-4 text-[11px] font-semibold text-violet-800 uppercase tracking-wider w-12">#</th>
+                                    <th class="px-5 py-4 text-[11px] font-semibold text-violet-800 uppercase tracking-wider">Kode</th>
+                                    <th class="px-5 py-4 text-[11px] font-semibold text-violet-800 uppercase tracking-wider">Nama Barang</th>
+                                    <th class="px-5 py-4 text-[11px] font-semibold text-violet-800 uppercase tracking-wider text-center">Stok Sistem</th>
+                                    <th class="px-5 py-4 text-[11px] font-semibold text-violet-800 uppercase tracking-wider text-center w-40">Stok Fisik</th>
+                                    <th class="px-5 py-4 text-[11px] font-semibold text-violet-800 uppercase tracking-wider text-center">Selisih</th>
+                                    <th class="px-5 py-4 text-[11px] font-semibold text-violet-800 uppercase tracking-wider text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr v-for="(barang, index) in filteredBarangs" :key="barang.id" 
+                                    class="transition-colors"
+                                    :class="{
+                                        'bg-emerald-50/40': getSelisih(barang.id, barang.stok_sistem) > 0 && !barang.has_opname_this_month,
+                                        'bg-rose-50/40': getSelisih(barang.id, barang.stok_sistem) < 0 && !barang.has_opname_this_month,
+                                        'bg-slate-50/50 opacity-60': barang.has_opname_this_month,
+                                        'hover:bg-slate-50/80': getSelisih(barang.id, barang.stok_sistem) === 0 && !barang.has_opname_this_month,
+                                    }">
+                                    <td class="px-5 py-3 text-sm text-slate-400">{{ index + 1 }}</td>
+                                    <td class="px-5 py-3">
+                                        <span class="text-xs font-mono text-slate-500 bg-slate-100 px-2 py-1 rounded">{{ barang.kode_barang }}</span>
+                                    </td>
+                                    <td class="px-5 py-3">
+                                        <p class="text-sm font-semibold text-slate-800">{{ barang.nama_barang }}</p>
+                                    </td>
+                                    <td class="px-5 py-3 text-center">
+                                        <span class="text-sm font-bold" :class="barang.stok_sistem <= 0 ? 'text-rose-500' : 'text-slate-700'">{{ barang.stok_sistem }}</span>
+                                    </td>
+                                    <td class="px-5 py-3 text-center">
+                                        <input v-if="!barang.has_opname_this_month && bulkData[barang.id]"
+                                            type="number" 
+                                            v-model="bulkData[barang.id].stok_fisik" 
+                                            @input="onStokFisikChange(barang.id, barang.stok_sistem)"
+                                            min="0"
+                                            class="w-24 mx-auto text-center px-3 py-2 border-2 rounded-xl text-sm font-semibold transition-all focus:ring-4 focus:ring-violet-500/10"
+                                            :class="getSelisih(barang.id, barang.stok_sistem) !== 0 
+                                                ? 'border-violet-400 bg-violet-50/50 text-violet-700 focus:border-violet-500' 
+                                                : 'border-slate-200 text-slate-700 focus:border-violet-500'">
+                                        <span v-else class="text-sm text-slate-400">—</span>
+                                    </td>
+                                    <td class="px-5 py-3 text-center">
+                                        <span v-if="!barang.has_opname_this_month" 
+                                            class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold"
+                                            :class="{
+                                                'bg-emerald-100 text-emerald-700': getSelisih(barang.id, barang.stok_sistem) > 0,
+                                                'bg-rose-100 text-rose-700': getSelisih(barang.id, barang.stok_sistem) < 0,
+                                                'bg-slate-100 text-slate-400': getSelisih(barang.id, barang.stok_sistem) === 0,
+                                            }">
+                                            {{ getSelisih(barang.id, barang.stok_sistem) > 0 ? '+' : '' }}{{ getSelisih(barang.id, barang.stok_sistem) }}
+                                        </span>
+                                        <span v-else class="text-xs text-slate-400">—</span>
+                                    </td>
+                                    <td class="px-5 py-3 text-center">
+                                        <span v-if="barang.has_opname_this_month" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-100 text-emerald-700 uppercase">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                            Done
+                                        </span>
+                                        <span v-else-if="getSelisih(barang.id, barang.stok_sistem) !== 0" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-100 text-amber-700 uppercase">
+                                            Ada Selisih
+                                        </span>
+                                        <span v-else class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-400 uppercase">
+                                            Sesuai
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr v-if="filteredBarangs.length === 0">
+                                    <td colspan="7" class="py-12 text-center text-slate-400">
+                                        <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                        </svg>
+                                        <p>Tidak ada barang ditemukan</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Alasan & Submit Section -->
+                <div v-if="changedItems.length > 0" class="bg-white rounded-2xl border border-violet-200/60 shadow-xl shadow-violet-200/30 p-6 space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="p-2 bg-violet-100 rounded-xl flex-shrink-0">
+                            <svg class="w-5 h-5 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
                         </div>
-                        <div v-if="barang.has_opname_this_month" class="mt-3 flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                            Sudah di-opname bulan ini
+                        <div class="flex-1">
+                            <h3 class="text-sm font-bold text-slate-800">
+                                {{ changedItems.length }} item siap disimpan
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Isi alasan opname lalu klik Simpan</p>
                         </div>
                     </div>
-                    
-                    <div v-if="barangsWithStock?.length === 0" class="col-span-full py-12 text-center text-slate-400">
-                        <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        <p>Tidak ada barang ditemukan</p>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Alasan Opname <span class="text-rose-500">*</span></label>
+                        <textarea v-model="alasan" rows="3" 
+                            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all text-sm" 
+                            placeholder="Jelaskan alasan opname (min. 10 karakter)..."></textarea>
+                        <p v-if="alasan.length > 0 && alasan.length < 10" class="text-rose-500 text-xs mt-1">Minimal 10 karakter</p>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2">
+                        <p class="text-xs text-slate-500">
+                            <span class="font-semibold text-violet-600">{{ changedItems.length }}</span> item dengan selisih akan disimpan
+                        </p>
+                        <button @click="submitBulk" 
+                            :disabled="isSubmitting || changedItems.length === 0 || alasan.length < 10"
+                            class="px-6 py-3 bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white rounded-xl font-semibold shadow-lg shadow-violet-500/30 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl transition-all flex items-center gap-2">
+                            <svg v-if="isSubmitting" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                            <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                            {{ isSubmitting ? 'Menyimpan...' : 'Simpan Opname' }}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -240,52 +377,6 @@ const formatDate = (dateStr) => {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <p>Belum ada riwayat opname untuk periode ini</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal -->
-        <div v-if="showModal" class="fixed inset-0 z-50 overflow-y-auto">
-            <div class="flex items-center justify-center min-h-screen p-4">
-                <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showModal = false"></div>
-                <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-                    <h3 class="text-lg font-bold text-slate-800 mb-4">Stock Opname</h3>
-                    
-                    <div class="mb-4 p-4 bg-gradient-to-r from-violet-50 to-fuchsia-50 rounded-xl border border-violet-100">
-                        <p class="font-semibold text-slate-800">{{ selectedBarang?.nama_barang }}</p>
-                        <p class="text-xs text-slate-500">{{ selectedBarang?.kode_barang }}</p>
-                        <div class="mt-2 flex items-center gap-4">
-                            <span class="text-sm text-slate-500">Stok Sistem: <strong class="text-slate-800">{{ selectedBarang?.stok_sistem }}</strong></span>
-                        </div>
-                    </div>
-
-                    <form @submit.prevent="submit" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Stok Fisik</label>
-                            <input type="number" v-model="form.stok_fisik" min="0" class="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all">
-                            <p class="mt-2 text-sm font-medium" :class="selisih() > 0 ? 'text-emerald-600' : selisih() < 0 ? 'text-rose-600' : 'text-slate-500'">
-                                Selisih: {{ selisih() > 0 ? '+' : '' }}{{ selisih() }}
-                            </p>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Alasan</label>
-                            <textarea v-model="form.alasan" rows="3" class="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all" placeholder="Jelaskan alasan perbedaan..."></textarea>
-                            <p v-if="form.errors.alasan" class="text-rose-500 text-xs mt-1">{{ form.errors.alasan }}</p>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Foto Bukti (Opsional)</label>
-                            <input type="file" @change="handleFileChange" accept="image/*" class="w-full text-sm text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
-                        </div>
-
-                        <div class="flex justify-end gap-3 pt-4">
-                            <button type="button" @click="showModal = false" class="px-5 py-2.5 border-2 border-slate-200 rounded-xl text-slate-600 font-medium hover:bg-slate-50 transition-colors">Batal</button>
-                            <button type="submit" :disabled="form.processing || selisih() === 0" class="px-5 py-2.5 bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white rounded-xl font-semibold shadow-lg shadow-violet-500/30 disabled:opacity-50 hover:shadow-xl transition-all">
-                                Simpan Opname
-                            </button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>

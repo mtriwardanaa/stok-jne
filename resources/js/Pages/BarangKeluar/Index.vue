@@ -107,6 +107,9 @@ const getTotalItems = (details) => {
                                     <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Tanggal</span>
                                 </th>
                                 <th class="px-6 py-4 text-left">
+                                    <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Penerima</span>
+                                </th>
+                                <th class="px-6 py-4 text-left">
                                     <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Dibuat oleh</span>
                                 </th>
                                 <th class="px-6 py-4 text-left">
@@ -126,6 +129,9 @@ const getTotalItems = (details) => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="text-sm text-slate-500">{{ formatDate(bk.tanggal) }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm font-medium text-slate-700">{{ bk.nama_user_request || '-' }}</span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
@@ -154,7 +160,7 @@ const getTotalItems = (details) => {
                                 </td>
                             </tr>
                             <tr v-if="barangKeluars.data.length === 0">
-                                <td colspan="6" class="px-6 py-16 text-center">
+                                <td colspan="7" class="px-6 py-16 text-center">
                                     <div class="flex flex-col items-center">
                                         <div class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
                                             <svg class="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

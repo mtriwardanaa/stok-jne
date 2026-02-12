@@ -94,6 +94,7 @@ Route::middleware(['auth'])->group(function () {
     // Stock Opname
     Route::get('/stok-opname', [StokOpnameController::class, 'index'])->name('stok-opname.index');
     Route::post('/stok-opname', [StokOpnameController::class, 'store'])->name('stok-opname.store');
+    Route::post('/stok-opname/bulk', [StokOpnameController::class, 'storeBulk'])->name('stok-opname.store-bulk');
     Route::get('/stok-opname/report', [StokOpnameController::class, 'report'])->name('stok-opname.report');
 
     // Report (Inertia)

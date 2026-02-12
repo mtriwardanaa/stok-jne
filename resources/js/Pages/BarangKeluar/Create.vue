@@ -68,13 +68,23 @@ const removeItem = (index) => {
     }
 }
 
-const submit = () => {
-    form.post('/barang-keluar')
-}
-
 const getBarangStock = (id) => {
     const barang = props.barangList.find(b => b.id === id)
     return barang?.qty_barang || 0
+}
+
+const isQtyOverStock = (item) => {
+    if (!item.id_barang) return false
+    return item.qty_barang > getBarangStock(item.id_barang)
+}
+
+const hasStockError = computed(() => {
+    return form.items.some(item => isQtyOverStock(item))
+})
+
+const submit = () => {
+    if (hasStockError.value) return
+    form.post('/barang-keluar')
 }
 </script>
 
@@ -220,9 +230,14 @@ const getBarangStock = (id) => {
                                     </div>
                                     <div class="col-span-3">
                                         <div class="flex items-center gap-2">
-                                            <input type="number" v-model="item.qty_barang" min="1" :max="getBarangStock(item.id_barang)" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500">
-                                            <span v-if="item.id_barang" class="text-[10px] text-slate-400 whitespace-nowrap">/ {{ getBarangStock(item.id_barang) }}</span>
+                                            <input type="number" v-model="item.qty_barang" min="1" :max="getBarangStock(item.id_barang)" 
+                                                class="w-full px-2.5 py-1.5 border rounded-lg text-sm focus:ring-2 transition-colors"
+                                                :class="isQtyOverStock(item) 
+                                                    ? 'border-rose-400 bg-rose-50 text-rose-700 focus:ring-rose-500/20 focus:border-rose-500' 
+                                                    : 'border-slate-200 focus:ring-rose-500/20 focus:border-rose-500'">
+                                            <span v-if="item.id_barang" class="text-[10px] whitespace-nowrap" :class="isQtyOverStock(item) ? 'text-rose-500 font-bold' : 'text-slate-400'">/ {{ getBarangStock(item.id_barang) }}</span>
                                         </div>
+                                        <p v-if="isQtyOverStock(item)" class="text-[10px] text-rose-500 font-medium mt-1">⚠ Melebihi stok tersedia!</p>
                                     </div>
                                     <div class="col-span-1 flex justify-center">
                                         <button type="button" @click="removeItem(index)" v-if="form.items.length > 1" class="p-1 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
@@ -236,7 +251,7 @@ const getBarangStock = (id) => {
                         <!-- Footer -->
                         <div class="px-5 py-4 bg-slate-50 border-t rounded-b-xl flex justify-end gap-3">
                             <Link href="/barang-keluar" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium">Batal</Link>
-                            <button type="submit" :disabled="form.processing" class="px-6 py-2 bg-rose-600 text-white rounded-lg text-sm font-semibold hover:bg-rose-700 disabled:opacity-50">
+                            <button type="submit" :disabled="form.processing || hasStockError" class="px-6 py-2 bg-rose-600 text-white rounded-lg text-sm font-semibold hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed">
                                 Simpan
                             </button>
                         </div>

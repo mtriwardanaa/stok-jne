@@ -115,6 +115,26 @@ class OrderController extends Controller
         try {
             $user = Auth::user();
 
+            // Validate stock availability for each detail
+            foreach ($order->details as $detail) {
+                $qtyToApprove = $approvedQty[$detail->id] ?? 0;
+                if ($qtyToApprove <= 0) continue;
+
+                $masuk = DB::table('stok_barang_masuk_detail')
+                    ->where('id_barang', $detail->id_barang)
+                    ->sum('qty_barang');
+                $keluar = DB::table('stok_barang_keluar_detail')
+                    ->where('id_barang', $detail->id_barang)
+                    ->sum('qty_barang');
+                $currentStock = $masuk - $keluar;
+
+                if ($qtyToApprove > $currentStock) {
+                    $namaBarang = $detail->barang->nama_barang ?? 'Unknown';
+                    DB::rollback();
+                    return back()->with('error', "Qty approve untuk \"{$namaBarang}\" ({$qtyToApprove}) melebihi stok tersedia ({$currentStock}).");
+                }
+            }
+
             $barangKeluar = BarangKeluar::create([
                 'no_barang_keluar' => 'NBK-' . date('md') . '-' . $user->id . date('His'),
                 'tanggal' => now(),

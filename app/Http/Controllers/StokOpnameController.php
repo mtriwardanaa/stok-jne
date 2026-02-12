@@ -141,6 +141,105 @@ class StokOpnameController extends Controller
         }
     }
 
+    public function storeBulk(Request $request)
+    {
+        $validated = $request->validate([
+            'alasan' => 'required|min:10',
+            'items' => 'required|array|min:1',
+            'items.*.id_barang' => 'required|exists:stok_barang,id',
+            'items.*.stok_fisik' => 'required|integer|min:0',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $noOpnameBatch = 'OPN-' . date('Ymd-His');
+            $savedCount = 0;
+            $skippedCount = 0;
+            $itemIndex = 0;
+
+            foreach ($validated['items'] as $item) {
+                // Skip if already opnamed this month
+                $hasOpnameThisMonth = DB::table('stok_opname')
+                    ->where('id_barang', $item['id_barang'])
+                    ->whereMonth('tanggal', now()->month)
+                    ->whereYear('tanggal', now()->year)
+                    ->exists();
+
+                if ($hasOpnameThisMonth) {
+                    $skippedCount++;
+                    continue;
+                }
+
+                // Calculate stock sistem
+                $masuk = DB::table('stok_barang_masuk_detail')
+                    ->where('id_barang', $item['id_barang'])
+                    ->sum('qty_barang');
+                $keluar = DB::table('stok_barang_keluar_detail')
+                    ->where('id_barang', $item['id_barang'])
+                    ->sum('qty_barang');
+                $stokSistem = $masuk - $keluar;
+                $selisih = $item['stok_fisik'] - $stokSistem;
+
+                // Skip if no difference
+                if ($selisih == 0) {
+                    continue;
+                }
+
+                $itemIndex++;
+                $noOpname = $noOpnameBatch . '-' . str_pad($itemIndex, 3, '0', STR_PAD_LEFT);
+
+                $tipeAdjustment = 'none';
+                $idBarangMasuk = null;
+                $idBarangKeluar = null;
+
+                if ($selisih > 0) {
+                    $tipeAdjustment = 'masuk';
+                    $idBarangMasuk = $this->createBarangMasukAdjustment($item['id_barang'], $noOpname, abs($selisih));
+                } elseif ($selisih < 0) {
+                    $tipeAdjustment = 'keluar';
+                    $idBarangKeluar = $this->createBarangKeluarAdjustment($item['id_barang'], $noOpname, abs($selisih));
+                }
+
+                DB::table('stok_opname')->insert([
+                    'no_opname' => $noOpname,
+                    'tanggal' => now(),
+                    'id_barang' => $item['id_barang'],
+                    'stok_sistem' => $stokSistem,
+                    'stok_fisik' => $item['stok_fisik'],
+                    'selisih' => $selisih,
+                    'tipe_adjustment' => $tipeAdjustment,
+                    'alasan' => $validated['alasan'],
+                    'foto_bukti' => null,
+                    'created_by' => Auth::id(),
+                    'id_barang_masuk' => $idBarangMasuk,
+                    'id_barang_keluar' => $idBarangKeluar,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                $savedCount++;
+            }
+
+            if ($savedCount === 0) {
+                DB::rollBack();
+                $msg = $skippedCount > 0
+                    ? 'Semua barang sudah di-opname bulan ini atau tidak ada selisih.'
+                    : 'Tidak ada item dengan selisih stok untuk disimpan.';
+                return back()->with('error', $msg);
+            }
+
+            DB::commit();
+            $msg = "Stock Opname berhasil! {$savedCount} item tersimpan.";
+            if ($skippedCount > 0) {
+                $msg .= " {$skippedCount} item dilewati (sudah di-opname bulan ini).";
+            }
+            return back()->with('success', $msg);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menyimpan: ' . $e->getMessage());
+        }
+    }
+
     private function createBarangMasukAdjustment($idBarang, $noOpname, $qty): int
     {
         $barangMasukId = DB::table('stok_barang_masuk')->insertGetId([

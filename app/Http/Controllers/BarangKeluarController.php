@@ -55,7 +55,7 @@ class BarangKeluarController extends Controller
         $validated = $request->validate([
             'tanggal' => 'required|date',
             'nama_user_request' => 'nullable|string|max:255',
-            'id_agen' => 'nullable|exists:' . config('database.connections.sso_mysql.database') . '.users,id',
+            'id_agen' => ['nullable', \Illuminate\Validation\Rule::exists('sso_mysql.users', 'id')],
             'items' => 'required|array|min:1',
             'items.*.id_barang' => 'required|exists:stok_barang,id',
             'items.*.qty_barang' => 'required|integer|min:1',
@@ -64,6 +64,23 @@ class BarangKeluarController extends Controller
         DB::beginTransaction();
         try {
             $user = Auth::user();
+
+            // Validate stock availability for each item
+            foreach ($validated['items'] as $item) {
+                $masuk = DB::table('stok_barang_masuk_detail')
+                    ->where('id_barang', $item['id_barang'])
+                    ->sum('qty_barang');
+                $keluar = DB::table('stok_barang_keluar_detail')
+                    ->where('id_barang', $item['id_barang'])
+                    ->sum('qty_barang');
+                $currentStock = $masuk - $keluar;
+
+                if ($item['qty_barang'] > $currentStock) {
+                    $barang = Barang::find($item['id_barang']);
+                    DB::rollback();
+                    return back()->with('error', "Qty untuk \"{$barang->nama_barang}\" ({$item['qty_barang']}) melebihi stok tersedia ({$currentStock}).");
+                }
+            }
 
             // Get nama_user_request from selected user or manual input
             $namaUserRequest = $validated['nama_user_request'] ?? '';
