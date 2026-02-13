@@ -55,7 +55,7 @@ class BarangKeluarController extends Controller
         $validated = $request->validate([
             'tanggal' => 'required|date',
             'nama_user_request' => 'nullable|string|max:255',
-            'user_id' => ['nullable', \Illuminate\Validation\Rule::exists('sso_mysql.users', 'id')],
+            'user_id' => ['required', \Illuminate\Validation\Rule::exists('sso_mysql.users', 'id')],
             'items' => 'required|array|min:1',
             'items.*.id_barang' => 'required|exists:stok_barang,id',
             'items.*.qty_barang' => 'required|integer|min:1',
