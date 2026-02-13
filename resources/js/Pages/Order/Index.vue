@@ -48,7 +48,7 @@ const setStatus = (s) => {
 }
 
 const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+    return new Date(dateStr).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 const getStatusColor = (s) => {
@@ -139,9 +139,6 @@ const getStatusColor = (s) => {
                                     <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Tanggal</span>
                                 </th>
                                 <th class="px-6 py-3.5 text-left">
-                                    <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Pemohon</span>
-                                </th>
-                                <th class="px-6 py-3.5 text-left">
                                     <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Dept / Group</span>
                                 </th>
                                 <th class="px-6 py-3.5 text-left">
@@ -160,15 +157,10 @@ const getStatusColor = (s) => {
                             <tr v-for="order in orders.data" :key="order.id" 
                                 class="group hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-purple-50/30 transition-all duration-200">
                                 <td class="px-6 py-4">
-                                    <span class="font-semibold text-slate-800">{{ order.no_order }}</span>
+                                    <span class="text-sm text-slate-700">{{ order.no_order }}</span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="text-sm text-slate-500">{{ formatDate(order.tanggal) }}</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-sm font-medium text-slate-700">{{ order.created_user?.name || '-' }}</span>
-                                    </div>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span v-if="order.created_user?.department" class="inline-flex items-center px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-medium">
@@ -180,7 +172,7 @@ const getStatusColor = (s) => {
                                     <span v-else class="text-xs text-slate-400">-</span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <p class="text-xs text-slate-600 leading-relaxed max-w-xs">
+                                    <p class="text-xs font-semibold text-slate-800 leading-relaxed max-w-xs">
                                         {{ order.details?.map(d => d.barang?.nama_barang).filter(Boolean).join(', ') || '-' }}
                                     </p>
                                 </td>
