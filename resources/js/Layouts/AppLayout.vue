@@ -55,7 +55,7 @@ const managementItems = [
         <!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
         <aside 
             :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-            class="fixed inset-y-0 left-0 z-50 w-[260px] lg:translate-x-0 transform transition-transform duration-300"
+            class="fixed inset-y-0 left-0 z-50 w-[260px] lg:translate-x-0 transform transition-transform duration-300 overflow-hidden"
         >
             <!-- Sidebar bg -->
             <div class="absolute inset-0 bg-gradient-to-b from-[#020617] via-[#0f172a] to-[#162544]"></div>

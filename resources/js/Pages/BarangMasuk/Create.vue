@@ -53,9 +53,9 @@ const totalNilai = () => {
         <div class="space-y-6">
             <!-- Header -->
             <div class="flex items-center gap-4">
-                <Link href="/barang-masuk" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
+                <a href="/barang-masuk" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-                </Link>
+                </a>
                 <div>
                     <h2 class="text-xl font-bold text-slate-800">Tambah Barang Masuk</h2>
                     <p class="text-sm text-slate-500">Catat penerimaan barang baru ke gudang</p>
@@ -179,7 +179,7 @@ const totalNilai = () => {
 
                         <!-- Footer -->
                         <div class="px-5 py-4 bg-slate-50 border-t rounded-b-xl flex justify-end gap-3">
-                            <Link href="/barang-masuk" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium">Batal</Link>
+                            <a href="/barang-masuk" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium">Batal</a>
                             <button type="submit" :disabled="form.processing" class="px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50">
                                 Simpan
                             </button>

@@ -147,11 +147,11 @@ const getStatusColor = (s) => {
                                 <th class="px-6 py-3.5 text-left">
                                     <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Barang</span>
                                 </th>
-                                <th class="px-6 py-3.5 text-center">
-                                    <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Status</span>
-                                </th>
                                 <th class="px-6 py-3.5 text-left">
                                     <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Keterangan</span>
+                                </th>
+                                <th class="px-6 py-3.5 text-center">
+                                    <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Status</span>
                                 </th>
                                 <th class="px-6 py-3.5 w-16"></th>
                             </tr>
@@ -167,10 +167,7 @@ const getStatusColor = (s) => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                                            {{ (order.nama_user_request || order.created_user?.name || 'U').substring(0, 2).toUpperCase() }}
-                                        </div>
-                                        <span class="text-sm font-medium text-slate-700">{{ order.nama_user_request || order.created_user?.name || '-' }}</span>
+                                        <span class="text-sm font-medium text-slate-700">{{ order.created_user?.name || '-' }}</span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -187,11 +184,6 @@ const getStatusColor = (s) => {
                                         {{ order.details?.map(d => d.barang?.nama_barang).filter(Boolean).join(', ') || '-' }}
                                     </p>
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wide" :class="getStatusColor(order.status)">
-                                        {{ order.status }}
-                                    </span>
-                                </td>
                                 <td class="px-6 py-4">
                                     <div class="text-xs space-y-0.5">
                                         <p class="text-slate-600"><span class="text-slate-400">Dibuat: </span>{{ order.created_user?.name || '-' }}</p>
@@ -202,6 +194,11 @@ const getStatusColor = (s) => {
                                             <span class="text-rose-400">Ditolak: </span>{{ order.rejected_user.name }}
                                         </p>
                                     </div>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wide" :class="getStatusColor(order.status)">
+                                        {{ order.status }}
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <Link :href="`/order/${order.id}`" 

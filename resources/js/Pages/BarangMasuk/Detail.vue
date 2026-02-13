@@ -23,9 +23,9 @@ const totalNilai = () => {
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <Link href="/barang-masuk" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
+                    <a href="/barang-masuk" class="inline-flex items-center justify-center p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-                    </Link>
+                    </a>
                     <div>
                         <h2 class="text-xl font-bold text-slate-800">{{ barangMasuk.no_barang_masuk }}</h2>
                         <p class="text-sm text-slate-500">{{ formatDate(barangMasuk.tanggal) }}</p>
