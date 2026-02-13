@@ -98,6 +98,20 @@ const openHistoryDetail = (order) => {
                         <p class="font-semibold text-slate-800">{{ order.created_user?.name || '-' }}</p>
                     </div>
                 </div>
+
+                <!-- Approve/Reject Info -->
+                <div v-if="order.status === 'selesai' || order.status === 'ditolak'" class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div v-if="order.status === 'selesai'">
+                        <p class="text-xs text-emerald-600 font-medium uppercase mb-1">Diapprove oleh</p>
+                        <p class="font-semibold text-slate-800">{{ order.approved_user?.name || '-' }}</p>
+                        <p v-if="order.tanggal_approve" class="text-xs text-slate-400 mt-0.5">{{ formatDate(order.tanggal_approve) }}</p>
+                    </div>
+                    <div v-if="order.status === 'ditolak'">
+                        <p class="text-xs text-rose-600 font-medium uppercase mb-1">Ditolak oleh</p>
+                        <p class="font-semibold text-slate-800">{{ order.rejected_user?.name || '-' }}</p>
+                        <p v-if="order.tanggal_reject" class="text-xs text-slate-400 mt-0.5">{{ formatDate(order.tanggal_reject) }}</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Items Table -->
