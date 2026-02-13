@@ -141,11 +141,17 @@ const getStatusColor = (s) => {
                                 <th class="px-6 py-3.5 text-left">
                                     <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Pemohon</span>
                                 </th>
-                                <th class="px-6 py-3.5 text-center">
-                                    <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Items</span>
+                                <th class="px-6 py-3.5 text-left">
+                                    <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Dept / Group</span>
+                                </th>
+                                <th class="px-6 py-3.5 text-left">
+                                    <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Barang</span>
                                 </th>
                                 <th class="px-6 py-3.5 text-center">
                                     <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Status</span>
+                                </th>
+                                <th class="px-6 py-3.5 text-left">
+                                    <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Keterangan</span>
                                 </th>
                                 <th class="px-6 py-3.5 w-16"></th>
                             </tr>
@@ -167,15 +173,35 @@ const getStatusColor = (s) => {
                                         <span class="text-sm font-medium text-slate-700">{{ order.nama_user_request || order.created_user?.name || '-' }}</span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold">
-                                        {{ order.details?.length || 0 }} item
+                                <td class="px-6 py-4">
+                                    <span v-if="order.created_user?.department" class="inline-flex items-center px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-medium">
+                                        {{ order.created_user.department.name }}
                                     </span>
+                                    <span v-else-if="order.created_user?.group" class="inline-flex items-center px-2 py-0.5 bg-amber-50 text-amber-700 rounded text-xs font-medium">
+                                        {{ order.created_user.group.name }}
+                                    </span>
+                                    <span v-else class="text-xs text-slate-400">-</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-xs text-slate-600 leading-relaxed max-w-xs">
+                                        {{ order.details?.map(d => d.barang?.nama_barang).filter(Boolean).join(', ') || '-' }}
+                                    </p>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wide" :class="getStatusColor(order.status)">
                                         {{ order.status }}
                                     </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-xs space-y-0.5">
+                                        <p class="text-slate-600"><span class="text-slate-400">Dibuat: </span>{{ order.created_user?.name || '-' }}</p>
+                                        <p v-if="order.status === 'selesai' && order.approved_user" class="text-emerald-600">
+                                            <span class="text-emerald-400">Approve: </span>{{ order.approved_user.name }}
+                                        </p>
+                                        <p v-if="order.status === 'ditolak' && order.rejected_user" class="text-rose-600">
+                                            <span class="text-rose-400">Ditolak: </span>{{ order.rejected_user.name }}
+                                        </p>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <Link :href="`/order/${order.id}`" 
@@ -185,7 +211,7 @@ const getStatusColor = (s) => {
                                 </td>
                             </tr>
                             <tr v-if="orders.data.length === 0">
-                                <td colspan="6" class="px-6 py-16 text-center">
+                                <td colspan="8" class="px-6 py-16 text-center">
                                     <div class="flex flex-col items-center">
                                         <div class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
                                             <svg class="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

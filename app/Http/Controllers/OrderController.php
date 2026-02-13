@@ -22,7 +22,7 @@ class OrderController extends Controller
         $month = $request->get('month', now()->month);
         $year = $request->get('year', now()->year);
 
-        $orders = Order::with(['createdUser', 'details.barang'])
+        $orders = Order::with(['createdUser.department', 'createdUser.group', 'approvedUser', 'rejectedUser', 'details.barang'])
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($query) use ($search) {
                     $query->where('no_order', 'like', "%{$search}%")
