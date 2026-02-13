@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
     modelValue: {
@@ -30,6 +30,7 @@ const isOpen = ref(false)
 const search = ref('')
 const inputRef = ref(null)
 const containerRef = ref(null)
+const listRef = ref(null)
 
 const filteredOptions = computed(() => {
     if (!search.value) return props.options
@@ -59,6 +60,13 @@ const toggleDropdown = () => {
     isOpen.value = !isOpen.value
     if (isOpen.value) {
         setTimeout(() => inputRef.value?.focus(), 50)
+        // Scroll to selected item
+        nextTick(() => {
+            const selected = listRef.value?.querySelector('[data-selected="true"]')
+            if (selected) {
+                selected.scrollIntoView({ block: 'center' })
+            }
+        })
     }
 }
 
@@ -130,8 +138,7 @@ onUnmounted(() => {
         >
             <div
                 v-if="isOpen"
-                class="absolute right-0 top-full z-[9999] mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden"
-                style="min-width: 220px;"
+                class="absolute left-0 top-full z-[9999] mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden"
             >
                 <!-- Search input -->
                 <div class="p-2.5 border-b border-slate-100 bg-slate-50">
@@ -146,7 +153,7 @@ onUnmounted(() => {
                 </div>
                 
                 <!-- Options list -->
-                <ul class="max-h-60 overflow-y-auto">
+                <ul ref="listRef" class="max-h-60 overflow-y-auto">
                     <li
                         v-for="option in filteredOptions"
                         :key="option.value"
@@ -155,6 +162,7 @@ onUnmounted(() => {
                         :class="String(modelValue) === String(option.value) 
                             ? 'bg-indigo-50 text-indigo-700 font-medium' 
                             : 'hover:bg-slate-50 text-slate-700'"
+                        :data-selected="String(modelValue) === String(option.value) ? 'true' : undefined"
                     >
                         <span>{{ option.label }}</span>
                         <svg 
