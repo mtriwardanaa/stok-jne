@@ -135,10 +135,16 @@ class OrderController extends Controller
                 }
             }
 
+            // Get org info from order creator
+            $orderCreator = $order->createdUser;
+
             $barangKeluar = BarangKeluar::create([
                 'no_barang_keluar' => 'NBK-' . date('md') . '-' . $user->id . date('His'),
                 'tanggal' => now(),
-                'id_order' => $order->id,
+                'order_id' => $order->id,
+                'user_id' => $orderCreator?->id,
+                'department_id' => $orderCreator?->department_id,
+                'group_id' => $orderCreator?->group_id,
                 'nama_user_request' => $order->nama_user_request,
                 'created_by' => $user->id,
             ]);

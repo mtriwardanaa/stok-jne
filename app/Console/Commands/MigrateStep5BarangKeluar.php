@@ -8,19 +8,19 @@ use Illuminate\Support\Facades\DB;
 class MigrateStep5BarangKeluar extends Command
 {
     protected $signature = 'migrate:step5-barang-keluar 
-        {--dry-run : Show what would be done without executing}
-        {--truncate : Truncate target tables before migration}';
-    protected $description = 'Step 5: Migrate stok_barang_keluar, detail & harga (with divisi mapping)';
+        {--dry-run : Show what would be done without executing}';
+    protected $description = 'Step 5: Migrate stok_barang_keluar, detail & harga (with dept/group mapping)';
 
-    protected array $userMapping = [];
-    protected array $divisiToDeptMap = [];
-    protected array $kategoriToRegionMap = [];
+    protected array $userMapping = [];       // old_user_id => sso_user_id
+    protected array $ssoUserDeptMap = [];     // sso_user_id => department_id
+    protected array $ssoUserGroupMap = [];    // sso_user_id => group_id
+    protected array $divisiToDeptMap = [];    // old_divisi_id => sso_department_id
     protected array $partnerDivisiIds = [7, 8, 9, 13, 23, 29];
+    protected $oldOrders;                    // id => order object (for created_by lookup)
 
     public function handle()
     {
         $dryRun = $this->option('dry-run');
-        $truncate = true;
         
         $this->info('===========================================');
         $this->info('STEP 5: BARANG KELUAR MIGRATION');
@@ -32,8 +32,9 @@ class MigrateStep5BarangKeluar extends Command
 
         // Build all mappings
         $this->buildUserMapping();
+        $this->buildSsoUserOrgMap();
         $this->buildDivisiMapping();
-        $this->buildKategoriMapping();
+        $this->loadOldOrders();
 
         // Count source data
         $oldKeluar = DB::connection('laporit')->table('stok_barang_keluar')->count();
@@ -53,15 +54,13 @@ class MigrateStep5BarangKeluar extends Command
         }
 
         // Truncate
-        if ($truncate) {
-            $this->warn('Truncating target tables...');
-            DB::statement('SET FOREIGN_KEY_CHECKS = 0');
-            DB::table('stok_barang_harga')->truncate();
-            DB::table('stok_barang_keluar_detail')->truncate();
-            DB::table('stok_barang_keluar')->truncate();
-            DB::statement('SET FOREIGN_KEY_CHECKS = 1');
-            $this->info('Tables truncated');
-        }
+        $this->warn('Truncating target tables...');
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+        DB::table('stok_barang_harga')->truncate();
+        DB::table('stok_barang_keluar_detail')->truncate();
+        DB::table('stok_barang_keluar')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+        $this->info('Tables truncated');
 
         // 1. Migrate stok_barang_keluar
         $this->info('Migrating stok_barang_keluar...');
@@ -69,44 +68,43 @@ class MigrateStep5BarangKeluar extends Command
         
         $insertedKeluar = 0;
         $skippedKeluar = 0;
-        $divisiMapped = 0;
-        $divisiNulled = 0;
+        $stats = ['from_order' => 0, 'from_agen' => 0, 'from_divisi' => 0, 'no_org' => 0];
+
         foreach ($keluars as $k) {
             $createdBy = $this->mapUserId($k->created_by);
             $updatedBy = $this->mapUserId($k->updated_by);
 
-            // Map divisi → department
-            $newDivisiId = $this->mapDivisiId($k->id_divisi);
-            if ($k->id_divisi !== null && $newDivisiId !== null) $divisiMapped++;
-            if ($k->id_divisi !== null && $newDivisiId === null) $divisiNulled++;
-
-            // Map kategori → region
-            $newKategoriId = $this->mapKategoriId($k->id_kategori);
+            // Resolve user_id, department_id, group_id
+            $resolved = $this->resolveOrganization($k);
+            
+            // Track stats
+            $stats[$resolved['source']]++;
             
             try {
                 DB::table('stok_barang_keluar')->insert([
                     'id' => $k->id,
                     'no_barang_keluar' => $k->no_barang_keluar,
                     'tanggal' => $k->tanggal,
-                    'id_divisi' => $newDivisiId,
-                    'id_kategori' => $newKategoriId,
-                    'id_agen' => $k->id_agen ?? null,
-                    'id_order' => $k->id_order ?? null,
+                    'department_id' => $resolved['department_id'],
+                    'group_id' => $resolved['group_id'],
+                    'user_id' => $resolved['user_id'],
+                    'order_id' => $k->id_order ?? null,
                     'nama_user_request' => $k->nama_user_request,
                     'distribusi_sales' => $k->distribusi_sales == 1 ? 'yes' : null,
                     'created_by' => $createdBy,
                     'updated_by' => $updatedBy,
                     'created_at' => $k->created_at,
                     'updated_at' => $k->updated_at,
+                    'is_old' => true,
                 ]);
                 $insertedKeluar++;
             } catch (\Exception $e) {
                 $skippedKeluar++;
-                $this->error("  Keluar #{$k->id} skipped: " . $e->getMessage());
+                $this->error("  Keluar #{$k->id}: " . $e->getMessage());
             }
         }
         $this->info("  -> {$insertedKeluar} barang keluar migrated, {$skippedKeluar} skipped");
-        $this->info("  -> Divisi mapped: {$divisiMapped}, set NULL (partner): {$divisiNulled}");
+        $this->info("  -> Source: from_order={$stats['from_order']}, from_agen={$stats['from_agen']}, from_divisi={$stats['from_divisi']}, no_org={$stats['no_org']}");
 
         // 2. Migrate stok_barang_keluar_detail
         $this->info('Migrating stok_barang_keluar_detail...');
@@ -127,7 +125,7 @@ class MigrateStep5BarangKeluar extends Command
                 $insertedKD++;
             } catch (\Exception $e) {
                 $skippedKD++;
-                $this->error("  Detail #{$d->id} skipped: " . $e->getMessage());
+                $this->error("  Detail #{$d->id}: " . $e->getMessage());
             }
         }
         $this->info("  -> {$insertedKD} barang keluar detail migrated, {$skippedKD} skipped");
@@ -157,7 +155,7 @@ class MigrateStep5BarangKeluar extends Command
                 $insertedHarga++;
             } catch (\Exception $e) {
                 $skippedHarga++;
-                $this->error("  Harga #{$h->id} skipped: " . $e->getMessage());
+                $this->error("  Harga #{$h->id}: " . $e->getMessage());
             }
         }
         $this->info("  -> {$insertedHarga} harga migrated, {$skippedHarga} skipped");
@@ -176,6 +174,63 @@ class MigrateStep5BarangKeluar extends Command
 
         $this->info('Step 5 (Barang Keluar) completed!');
         return Command::SUCCESS;
+    }
+
+    /**
+     * Resolve department_id, group_id, user_id from old record
+     * Priority:
+     * 1. id_order → get order's created_by → map to SSO user → get dept/group
+     * 2. id_agen → map to SSO user → get dept/group
+     * 3. id_divisi → use divisi mapping (internal→dept, partner→null)
+     */
+    private function resolveOrganization($k): array
+    {
+        $result = [
+            'department_id' => null,
+            'group_id' => null,
+            'user_id' => null,
+            'source' => 'no_org',
+        ];
+
+        // Priority 1: From order
+        if (!empty($k->id_order) && isset($this->oldOrders[$k->id_order])) {
+            $order = $this->oldOrders[$k->id_order];
+            $ssoUserId = $this->mapUserId($order->created_by);
+            
+            if ($ssoUserId) {
+                $result['user_id'] = $ssoUserId;
+                $result['department_id'] = $this->ssoUserDeptMap[$ssoUserId] ?? null;
+                $result['group_id'] = $this->ssoUserGroupMap[$ssoUserId] ?? null;
+                $result['source'] = 'from_order';
+            }
+            return $result;
+        }
+
+        // Priority 2: From id_agen (maps to user)
+        if (!empty($k->id_agen)) {
+            $ssoUserId = $this->mapUserId($k->id_agen);
+            
+            if ($ssoUserId) {
+                $result['user_id'] = $ssoUserId;
+                $result['department_id'] = $this->ssoUserDeptMap[$ssoUserId] ?? null;
+                $result['group_id'] = $this->ssoUserGroupMap[$ssoUserId] ?? null;
+                $result['source'] = 'from_agen';
+            }
+            return $result;
+        }
+
+        // Priority 3: From id_divisi (use divisi mapping)
+        if (!empty($k->id_divisi)) {
+            if (in_array($k->id_divisi, $this->partnerDivisiIds)) {
+                // Partner divisi → no department, can't determine specific group
+                $result['source'] = 'from_divisi';
+            } else {
+                $result['department_id'] = $this->divisiToDeptMap[$k->id_divisi] ?? null;
+                $result['source'] = 'from_divisi';
+            }
+        }
+
+        return $result;
     }
 
     private function buildUserMapping(): void
@@ -202,6 +257,27 @@ class MigrateStep5BarangKeluar extends Command
         $this->info("  -> {$oldUsers->count()} old users, " . count($this->userMapping) . " mapped");
     }
 
+    private function buildSsoUserOrgMap(): void
+    {
+        $this->info('Building SSO user → dept/group map...');
+        
+        $ssoUsers = DB::connection('sso_mysql')
+            ->table('users')
+            ->select('id', 'department_id', 'group_id')
+            ->get();
+
+        foreach ($ssoUsers as $u) {
+            if ($u->department_id) {
+                $this->ssoUserDeptMap[$u->id] = $u->department_id;
+            }
+            if ($u->group_id) {
+                $this->ssoUserGroupMap[$u->id] = $u->group_id;
+            }
+        }
+        
+        $this->info("  -> " . count($this->ssoUserDeptMap) . " users with dept, " . count($this->ssoUserGroupMap) . " with group");
+    }
+
     private function buildDivisiMapping(): void
     {
         $this->info('Building divisi → department mapping...');
@@ -214,32 +290,23 @@ class MigrateStep5BarangKeluar extends Command
                 $dept = $ssoDepts->get($divisi->nama);
                 if ($dept) {
                     $this->divisiToDeptMap[$divisi->id] = $dept->id;
-                    $this->info("  -> Divisi #{$divisi->id} ({$divisi->nama}) → Dept #{$dept->id}");
-                } else {
-                    $this->warn("  -> Divisi #{$divisi->id} ({$divisi->nama}) → NOT FOUND in SSO!");
                 }
-            } else {
-                $this->info("  -> Divisi #{$divisi->id} ({$divisi->nama}) → NULL (partner)");
             }
         }
+        
+        $this->info("  -> " . count($this->divisiToDeptMap) . " divisi mapped to departments");
     }
 
-    private function buildKategoriMapping(): void
+    private function loadOldOrders(): void
     {
-        $this->info('Building kategori → region mapping...');
+        $this->info('Loading old orders for lookup...');
+        $orders = DB::connection('laporit')
+            ->table('stok_order')
+            ->select('id', 'created_by')
+            ->get();
         
-        $oldKategori = DB::connection('laporit')->table('agen_kategori')->get();
-        $ssoRegions = DB::connection('sso_mysql')->table('regions')->get()->keyBy('name');
-
-        foreach ($oldKategori as $k) {
-            $region = $ssoRegions->get($k->nama);
-            if ($region) {
-                $this->kategoriToRegionMap[$k->id] = $region->id;
-                $this->info("  -> Kategori #{$k->id} ({$k->nama}) → Region #{$region->id}");
-            } else {
-                $this->warn("  -> Kategori #{$k->id} ({$k->nama}) → NOT FOUND!");
-            }
-        }
+        $this->oldOrders = $orders->keyBy('id')->toArray();
+        $this->info("  -> " . count($this->oldOrders) . " orders loaded");
     }
 
     private function mapUserId($oldId): ?int
@@ -248,43 +315,37 @@ class MigrateStep5BarangKeluar extends Command
         return $this->userMapping[$oldId] ?? $oldId;
     }
 
-    private function mapDivisiId($oldId): ?int
-    {
-        if ($oldId === null) return null;
-        if (in_array($oldId, $this->partnerDivisiIds)) return null;
-        return $this->divisiToDeptMap[$oldId] ?? null;
-    }
-
-    private function mapKategoriId($oldId): ?int
-    {
-        if ($oldId === null) return null;
-        return $this->kategoriToRegionMap[$oldId] ?? null;
-    }
-
     private function showSampleBarangKeluarData(): void
     {
         $this->newLine();
-        $this->info('SAMPLE BARANG KELUAR DATA (first 10 rows):');
+        $this->info('SAMPLE BARANG KELUAR (first 15):');
         
         $samples = DB::connection('laporit')
             ->table('stok_barang_keluar')
-            ->select('id', 'no_barang_keluar', 'tanggal', 'id_divisi', 'id_kategori', 'created_by')
-            ->limit(10)
+            ->select('id', 'no_barang_keluar', 'id_divisi', 'id_order', 'id_agen', 'created_by', 'nama_user_request')
+            ->limit(15)
             ->get();
 
         $rows = [];
         foreach ($samples as $s) {
-            $newDivisi = $this->mapDivisiId($s->id_divisi);
-            $newKategori = $this->mapKategoriId($s->id_kategori);
+            $resolved = $this->resolveOrganization($s);
             $mappedUser = $this->mapUserId($s->created_by);
             $rows[] = [
                 $s->id,
-                $s->no_barang_keluar,
-                $s->id_divisi . ' → ' . ($newDivisi ?? 'NULL'),
-                ($s->id_kategori ?? '-') . ' → ' . ($newKategori ?? 'NULL'),
-                $s->created_by . ($mappedUser != $s->created_by ? " → {$mappedUser}" : ''),
+                substr($s->no_barang_keluar, 0, 15),
+                $s->id_order ?? '-',
+                $s->id_agen ?? '-',
+                $s->id_divisi ?? '-',
+                $resolved['source'],
+                $resolved['department_id'] ?? '-',
+                $resolved['group_id'] ?? '-',
+                $resolved['user_id'] ?? '-',
+                $s->created_by . ($mappedUser != $s->created_by ? "→{$mappedUser}" : ''),
             ];
         }
-        $this->table(['ID', 'No BK', 'Divisi (old→new)', 'Kategori (old→new)', 'Created By'], $rows);
+        $this->table([
+            'ID', 'No BK', 'Order', 'Agen', 'Divisi',
+            'Source', 'Dept', 'Group', 'User', 'Created By',
+        ], $rows);
     }
 }

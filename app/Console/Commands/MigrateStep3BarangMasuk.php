@@ -81,6 +81,7 @@ class MigrateStep3BarangMasuk extends Command
                     'updated_by' => $updatedBy,
                     'created_at' => $m->created_at,
                     'updated_at' => $m->updated_at,
+                    'is_old' => true,
                 ]);
                 
                 $inserted++;

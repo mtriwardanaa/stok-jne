@@ -16,7 +16,7 @@ const form = useForm({
     tipe_penerima: '',       // 'internal' or 'mitra'
     id_divisi: '',            // department_id if internal
     id_group: '',             // group_id if mitra
-    id_agen: '',              // selected user id
+    user_id: '',              // selected user id
     nama_user_request: '',
     items: [{ id_barang: '', qty_barang: 1 }],
 })
@@ -37,19 +37,19 @@ const filteredUsers = computed(() => {
 watch(() => form.tipe_penerima, () => {
     form.id_divisi = ''
     form.id_group = ''
-    form.id_agen = ''
+    form.user_id = ''
 })
 
 watch(() => form.id_divisi, () => {
-    form.id_agen = ''
+    form.user_id = ''
 })
 
 watch(() => form.id_group, () => {
-    form.id_agen = ''
+    form.user_id = ''
 })
 
 // Auto-fill nama from selected user
-watch(() => form.id_agen, (val) => {
+watch(() => form.user_id, (val) => {
     if (val) {
         const user = props.users.find(u => String(u.id) === String(val))
         if (user) form.nama_user_request = user.name
@@ -168,14 +168,14 @@ const submit = () => {
                         <div v-if="form.tipe_penerima && (form.id_divisi || form.id_group)">
                             <label class="block text-xs font-semibold text-slate-600 mb-1.5">Penerima</label>
                             <SearchableSelect
-                                v-model="form.id_agen"
+                                v-model="form.user_id"
                                 :options="filteredUsers.map(u => ({ value: u.id, label: u.name }))"
                                 placeholder="Pilih penerima..."
                             />
                         </div>
 
                         <!-- Selected user preview -->
-                        <div v-if="form.id_agen" class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <div v-if="form.user_id" class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
                             <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
                                 {{ form.nama_user_request?.substring(0, 2).toUpperCase() }}
                             </div>

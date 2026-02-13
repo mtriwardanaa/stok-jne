@@ -55,7 +55,7 @@ class BarangKeluarController extends Controller
         $validated = $request->validate([
             'tanggal' => 'required|date',
             'nama_user_request' => 'nullable|string|max:255',
-            'id_agen' => ['nullable', \Illuminate\Validation\Rule::exists('sso_mysql.users', 'id')],
+            'user_id' => ['nullable', \Illuminate\Validation\Rule::exists('sso_mysql.users', 'id')],
             'items' => 'required|array|min:1',
             'items.*.id_barang' => 'required|exists:stok_barang,id',
             'items.*.qty_barang' => 'required|integer|min:1',
@@ -82,19 +82,27 @@ class BarangKeluarController extends Controller
                 }
             }
 
-            // Get nama_user_request from selected user or manual input
+            // Get nama_user_request and org from selected user or manual input
             $namaUserRequest = $validated['nama_user_request'] ?? '';
-            if (!empty($validated['id_agen'])) {
-                $agenUser = User::find($validated['id_agen']);
-                if ($agenUser) {
-                    $namaUserRequest = $agenUser->name;
+            $selectedUserId = $validated['user_id'] ?? null;
+            $departmentId = null;
+            $groupId = null;
+
+            if ($selectedUserId) {
+                $selectedUser = User::find($selectedUserId);
+                if ($selectedUser) {
+                    $namaUserRequest = $selectedUser->name;
+                    $departmentId = $selectedUser->department_id;
+                    $groupId = $selectedUser->group_id;
                 }
             }
 
             $barangKeluar = BarangKeluar::create([
                 'no_barang_keluar' => 'NBK-' . date('md') . '-' . $user->id . date('His'),
                 'tanggal' => $validated['tanggal'],
-                'id_agen' => $validated['id_agen'] ?? null,
+                'user_id' => $selectedUserId,
+                'department_id' => $departmentId,
+                'group_id' => $groupId,
                 'nama_user_request' => $namaUserRequest,
                 'created_by' => $user->id,
             ]);
@@ -141,7 +149,7 @@ class BarangKeluarController extends Controller
 
     public function show($id)
     {
-        $barangKeluar = BarangKeluar::with(['createdUser', 'requestUser', 'details.barang.satuan', 'order', 'invoice.details.barang.satuan'])
+        $barangKeluar = BarangKeluar::with(['createdUser', 'requestUser', 'department', 'group', 'details.barang.satuan', 'order', 'invoice.details.barang.satuan'])
             ->findOrFail($id);
 
         return Inertia::render('BarangKeluar/Detail', [

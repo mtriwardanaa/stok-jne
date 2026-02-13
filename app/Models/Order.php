@@ -27,6 +27,7 @@ class Order extends Model
         'tanggal_reject',
         'rejected_text',
         'status',
+        'is_old',
     ];
 
     protected $casts = [

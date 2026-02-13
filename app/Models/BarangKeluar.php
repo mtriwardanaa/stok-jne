@@ -14,16 +14,15 @@ class BarangKeluar extends Model
     protected $fillable = [
         'no_barang_keluar',
         'tanggal',
-        'id_divisi',
-        'id_kategori',
-        'id_agen',
-        'id_order',
-        'id_user_request',
+        'department_id',
+        'group_id',
+        'user_id',
+        'order_id',
         'nama_user_request',
-        'no_hp',
         'distribusi_sales',
         'created_by',
         'updated_by',
+        'is_old',
     ];
 
     protected $casts = [
@@ -37,12 +36,22 @@ class BarangKeluar extends Model
 
     public function order()
     {
-        return $this->belongsTo(Order::class, 'id_order');
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
     public function requestUser()
     {
-        return $this->belongsTo(User::class, 'id_agen');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class, 'group_id');
     }
 
     public function createdUser()
@@ -56,17 +65,19 @@ class BarangKeluar extends Model
     }
 
     /**
-     * Get organization name from request user or order
+     * Get organization name from department or group
      */
     public function getOrganizationNameAttribute(): string
     {
-        // Try from request user first
+        if ($this->department) {
+            return $this->department->name;
+        }
+        if ($this->group) {
+            return $this->group->name;
+        }
+        // Fallback to request user
         if ($this->requestUser) {
             return $this->requestUser->organization_name;
-        }
-        // Then from order
-        if ($this->order) {
-            return $this->order->organization_name;
         }
         return '-';
     }

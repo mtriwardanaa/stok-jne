@@ -16,6 +16,7 @@ class BarangMasuk extends Model
         'tanggal',
         'created_by',
         'updated_by',
+        'is_old',
     ];
 
     protected $casts = [

@@ -81,8 +81,6 @@ class MigrateStep4Order extends Command
                     'tanggal_update' => $o->tanggal_update,
                     'tanggal_approve' => $o->tanggal_approve,
                     'tanggal_reject' => $o->tanggal_reject,
-                    'id_divisi' => null, // derived from created_by user
-                    'id_kategori' => null, // derived from created_by user
                     'created_by' => $createdBy,
                     'updated_by' => $updatedBy,
                     'approved_by' => $approvedBy,
@@ -93,6 +91,7 @@ class MigrateStep4Order extends Command
                     'status' => $status,
                     'created_at' => $o->created_at,
                     'updated_at' => $o->updated_at,
+                    'is_old' => true,
                 ]);
                 $insertedOrder++;
             } catch (\Exception $e) {
