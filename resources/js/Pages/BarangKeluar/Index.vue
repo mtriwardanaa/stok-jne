@@ -112,8 +112,8 @@ const getTotalItems = (details) => {
                                 <th class="px-6 py-4 text-left">
                                     <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Dibuat oleh</span>
                                 </th>
-                                <th class="px-6 py-4 text-left">
-                                    <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Dari Order</span>
+                                <th class="px-6 py-3.5 text-left">
+                                    <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Barang</span>
                                 </th>
                                 <th class="px-6 py-4 text-center">
                                     <span class="text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Total Qty</span>
@@ -125,27 +125,21 @@ const getTotalItems = (details) => {
                             <tr v-for="bk in barangKeluars.data" :key="bk.id" 
                                 class="group hover:bg-gradient-to-r hover:from-rose-50/50 hover:to-pink-50/30 transition-all duration-200">
                                 <td class="px-6 py-4">
-                                    <span class="font-semibold text-slate-800">{{ bk.no_barang_keluar }}</span>
+                                    <span class="text-sm text-slate-700">{{ bk.no_barang_keluar }}</span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="text-sm text-slate-500">{{ formatDate(bk.tanggal) }}</span>
+                                    <span class="text-sm font-semibold text-slate-800">{{ formatDate(bk.tanggal) }}</span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="text-sm font-medium text-slate-700">{{ bk.nama_user_request || '-' }}</span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                                            {{ (bk.created_user?.name || 'U').substring(0, 2).toUpperCase() }}
-                                        </div>
-                                        <span class="text-sm font-medium text-slate-700">{{ bk.created_user?.name || '-' }}</span>
-                                    </div>
+                                    <span class="text-sm font-medium text-slate-700">{{ bk.created_user?.name || '-' }}</span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <Link v-if="bk.order" :href="`/order/${bk.order.id}`" class="text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
-                                        {{ bk.order.no_order }}
-                                    </Link>
-                                    <span v-else class="text-slate-400 text-sm">-</span>
+                                    <p class="text-xs font-semibold text-slate-800 leading-relaxed max-w-xs">
+                                        {{ bk.details?.map(d => d.barang?.nama_barang).filter(Boolean).join(', ') || '-' }}
+                                    </p>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <span class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full text-xs font-bold shadow-sm shadow-rose-500/25">

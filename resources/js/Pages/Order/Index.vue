@@ -160,7 +160,7 @@ const getStatusColor = (s) => {
                                     <span class="text-sm text-slate-700">{{ order.no_order }}</span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="text-sm text-slate-500">{{ formatDate(order.tanggal) }}</span>
+                                    <span class="text-sm font-semibold text-slate-800">{{ formatDate(order.tanggal) }}</span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span v-if="order.created_user?.department" class="inline-flex items-center px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-medium">
