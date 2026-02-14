@@ -24,7 +24,26 @@ Route::post('/login', function () {
         'password' => 'required',
     ]);
 
-    if (auth()->attempt($credentials)) {
+    // Case-insensitive login
+    $user = \App\Models\User::whereRaw('LOWER(username) = ?', [strtolower($credentials['username'])])->first();
+    
+    // Check password (case-insensitive attempt)
+    $password = $credentials['password'];
+    $isValid = false;
+    
+    if ($user) {
+        if (\Illuminate\Support\Facades\Hash::check($password, $user->password)) {
+            $isValid = true;
+        } elseif (\Illuminate\Support\Facades\Hash::check(strtolower($password), $user->password)) {
+            $isValid = true;
+        } elseif (\Illuminate\Support\Facades\Hash::check(strtoupper($password), $user->password)) {
+            $isValid = true;
+        }
+    }
+
+    if ($isValid) {
+        Auth::login($user);
+
         if (auth()->user()->department_id == 10) {
             request()->session()->regenerate();
             return redirect()->intended(route('dashboard'));
