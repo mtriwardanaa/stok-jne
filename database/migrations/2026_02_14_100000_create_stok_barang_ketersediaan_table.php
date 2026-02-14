@@ -74,6 +74,17 @@ return new class extends Migration
                 ];
             }
 
+            // subagen=1 → juga partner_id=4 (KANTOR PERWAKILAN, sama dengan CABANG / SUB AGEN)
+            if ($barang->subagen) {
+                $rows[] = [
+                    'id_barang' => $barang->id,
+                    'tipe' => 'partner',
+                    'partner_id' => 4,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+
             if (!empty($rows)) {
                 DB::table('stok_barang_ketersediaan')->insert($rows);
             }

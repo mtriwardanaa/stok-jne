@@ -46,6 +46,7 @@ class MigrateStep2Master extends Command
         if ($truncate) {
             $this->warn('Truncating target tables...');
             DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+            DB::table('stok_barang_ketersediaan')->truncate();
             DB::table('stok_barang_harga')->truncate();
             DB::table('stok_barang')->truncate();
             DB::table('stok_barang_satuan')->truncate();
@@ -103,6 +104,56 @@ class MigrateStep2Master extends Command
         }
         $this->info("  -> {$barangs->count()} barang migrated");
 
+        // 4. Migrate Ketersediaan (from boolean columns to pivot table)
+        $this->info('Migrating stok_barang_ketersediaan...');
+        $ketersediaanCount = 0;
+        // Partner mapping: agen => partner_id 1, subagen => 2, corporate => 3, kantor perwakilan => 4 (sama dengan subagen)
+        $partnerMapping = [
+            'agen' => 1,      // AGEN HYBRID
+            'subagen' => 2,   // CABANG / SUB AGEN
+            'corporate' => 3, // CUSTOMER CORPORATE
+        ];
+        // KANTOR PERWAKILAN (4) ikut ketersediaan yang sama dengan subagen
+        $kpPartnerId = 4;
+        foreach ($barangs as $b) {
+            // Internal
+            if (!empty($b->internal)) {
+                DB::table('stok_barang_ketersediaan')->insert([
+                    'id_barang' => $b->id,
+                    'tipe' => 'internal',
+                    'partner_id' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $ketersediaanCount++;
+            }
+            // Partners
+            foreach ($partnerMapping as $col => $partnerId) {
+                if (!empty($b->$col)) {
+                    DB::table('stok_barang_ketersediaan')->insert([
+                        'id_barang' => $b->id,
+                        'tipe' => 'partner',
+                        'partner_id' => $partnerId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                    $ketersediaanCount++;
+                }
+            }
+            // KANTOR PERWAKILAN ikut subagen
+            if (!empty($b->subagen)) {
+                DB::table('stok_barang_ketersediaan')->insert([
+                    'id_barang' => $b->id,
+                    'tipe' => 'partner',
+                    'partner_id' => $kpPartnerId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $ketersediaanCount++;
+            }
+        }
+        $this->info("  -> {$ketersediaanCount} ketersediaan records migrated");
+
         // Verification
         $this->newLine();
         $this->info('VERIFICATION:');
@@ -112,6 +163,7 @@ class MigrateStep2Master extends Command
                 ['stok_supplier', $oldSupplier, DB::table('stok_supplier')->count()],
                 ['stok_barang_satuan', $oldSatuan, DB::table('stok_barang_satuan')->count()],
                 ['stok_barang', $oldBarang, DB::table('stok_barang')->count()],
+                ['stok_barang_ketersediaan', '-', DB::table('stok_barang_ketersediaan')->count()],
             ]
         );
 
