@@ -58,7 +58,7 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $order = Order::with(['createdUser', 'approvedUser', 'rejectedUser', 'details.barang.satuan'])
+        $order = Order::with(['createdUser.department', 'createdUser.group', 'approvedUser', 'rejectedUser', 'details.barang.satuan'])
             ->findOrFail($id);
 
         // Initialize approved quantities
@@ -203,7 +203,7 @@ class OrderController extends Controller
     public function reject(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'rejectReason' => 'required|min:10',
+            'rejectReason' => 'required|min:4',
         ]);
 
         $order->update([

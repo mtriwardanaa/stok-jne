@@ -143,7 +143,7 @@ const getInvoiceTotal = () => {
                     </div>
                     <div>
                         <p class="text-xs text-slate-500 font-medium uppercase mb-1">Penerima</p>
-                        <p class="font-semibold text-slate-800">{{ barangKeluar.nama_user_request || '-' }}</p>
+                        <p class="font-semibold text-slate-800">{{ barangKeluar.request_user?.name || barangKeluar.nama_user_request || '-' }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-500 font-medium uppercase mb-1">Dibuat oleh</p>

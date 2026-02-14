@@ -22,7 +22,7 @@ class BarangKeluarController extends Controller
         $month = $request->get('month', now()->month);
         $year = $request->get('year', now()->year);
 
-        $barangKeluars = BarangKeluar::with(['createdUser', 'details.barang', 'order'])
+        $barangKeluars = BarangKeluar::with(['createdUser', 'requestUser', 'details.barang', 'order'])
             ->when($search, fn($q) => $q->where('no_barang_keluar', 'like', "%{$search}%"))
             ->when($month, fn($q) => $q->whereMonth('tanggal', $month))
             ->when($year, fn($q) => $q->whereYear('tanggal', $year))

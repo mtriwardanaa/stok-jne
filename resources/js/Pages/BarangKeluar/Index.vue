@@ -131,7 +131,7 @@ const getTotalItems = (details) => {
                                     <span class="text-sm font-semibold text-slate-800">{{ formatDate(bk.tanggal) }}</span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="text-sm font-medium text-slate-700">{{ bk.nama_user_request || '-' }}</span>
+                                    <span class="text-sm font-medium text-slate-700">{{ bk.request_user?.name || bk.nama_user_request || '-' }}</span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="text-sm font-medium text-slate-700">{{ bk.created_user?.name || '-' }}</span>

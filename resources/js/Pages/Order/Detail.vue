@@ -78,7 +78,6 @@ const openHistoryDetail = (order) => {
                 </span>
             </div>
 
-            <!-- Order Info -->
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                     <div>
@@ -91,25 +90,22 @@ const openHistoryDetail = (order) => {
                     </div>
                     <div>
                         <p class="text-xs text-slate-500 font-medium uppercase mb-1">Pemohon</p>
-                        <p class="font-semibold text-slate-800">{{ order.nama_user_request || order.created_user?.name || '-' }}</p>
+                        <p class="font-semibold text-slate-800">{{ order.created_user?.name || '-' }}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-500 font-medium uppercase mb-1">Dibuat oleh</p>
-                        <p class="font-semibold text-slate-800">{{ order.created_user?.name || '-' }}</p>
+                        <p class="text-xs text-slate-500 font-medium uppercase mb-1">Dept / Group</p>
+                        <p v-if="order.created_user?.department" class="font-semibold text-slate-800">{{ order.created_user?.department.name }}</p>
+                        <p v-else-if="order.created_user?.group" class="font-semibold text-slate-800">{{ order.created_user?.group.name }}</p>
+                        <p v-else class="text-xs text-slate-400">-</p>
                     </div>
                 </div>
 
                 <!-- Approve/Reject Info -->
-                <div v-if="order.status === 'selesai' || order.status === 'ditolak'" class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div v-if="order.status === 'selesai'">
+                <div v-if="order.status === 'selesai'" class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div>
                         <p class="text-xs text-emerald-600 font-medium uppercase mb-1">Diapprove oleh</p>
                         <p class="font-semibold text-slate-800">{{ order.approved_user?.name || '-' }}</p>
                         <p v-if="order.tanggal_approve" class="text-xs text-slate-400 mt-0.5">{{ formatDate(order.tanggal_approve) }}</p>
-                    </div>
-                    <div v-if="order.status === 'ditolak'">
-                        <p class="text-xs text-rose-600 font-medium uppercase mb-1">Ditolak oleh</p>
-                        <p class="font-semibold text-slate-800">{{ order.rejected_user?.name || '-' }}</p>
-                        <p v-if="order.tanggal_reject" class="text-xs text-slate-400 mt-0.5">{{ formatDate(order.tanggal_reject) }}</p>
                     </div>
                 </div>
             </div>
@@ -125,11 +121,11 @@ const openHistoryDetail = (order) => {
                         <tr class="text-[11px] font-semibold text-indigo-800 uppercase">
                             <th class="px-6 py-3">#</th>
                             <th class="px-6 py-3">Barang</th>
-                            <th class="px-6 py-3">Satuan</th>
                             <th class="px-6 py-3 text-center">Qty Diminta</th>
                             <th class="px-6 py-3 text-center">Stok Tersedia</th>
                             <th v-if="order.status === 'menunggu'" class="px-6 py-3 text-center">Qty Approve</th>
                             <th v-if="order.status === 'selesai'" class="px-6 py-3 text-center">Qty Diberikan</th>
+                            <th class="px-6 py-3">Satuan</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -139,7 +135,6 @@ const openHistoryDetail = (order) => {
                                 <p class="font-medium text-slate-800">{{ detail.barang?.nama_barang }}</p>
                                 <p class="text-xs text-slate-500">{{ detail.barang?.kode_barang }}</p>
                             </td>
-                            <td class="px-6 py-4 text-slate-600">{{ detail.barang?.satuan?.nama_satuan || '-' }}</td>
                             <td class="px-6 py-4 text-center font-semibold">{{ detail.qty_barang }}</td>
                             <td class="px-6 py-4 text-center">
                                 <span class="px-2 py-1 rounded text-xs font-semibold" :class="detail.barang?.qty_barang >= detail.qty_barang ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'">
@@ -159,6 +154,7 @@ const openHistoryDetail = (order) => {
                             <td v-if="order.status === 'selesai'" class="px-6 py-4 text-center font-semibold text-emerald-600">
                                 {{ detail.qty_approved || 0 }}
                             </td>
+                            <td class="px-6 py-4 text-slate-600">{{ detail.barang?.satuan?.nama_satuan || '-' }}</td>
                         </tr>
                     </tbody>
                 </table>
