@@ -217,13 +217,16 @@ class MigrateStep1Users extends Command
             foreach ($partnerUsers as $u) {
                 if (!$u->nama) continue;
                 
+                $groupName = trim($u->nama); // trim whitespace/newlines to prevent duplicates
+                if (!$groupName) continue;
+                
                 $partnerId = $this->partnerMap[$u->id_divisi] ?? null;
                 $regionId = $u->id_agen_kategori ? ($this->regionMap[$u->id_agen_kategori] ?? null) : null;
                 
                 DB::connection('sso_mysql')->table('groups')->updateOrInsert(
-                    ['name' => $u->nama],
+                    ['name' => $groupName],
                     [
-                        'name' => $u->nama,
+                        'name' => $groupName,
                         'partner_id' => $partnerId,
                         'region_id' => $regionId,
                         'created_at' => now(),

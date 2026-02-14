@@ -15,6 +15,7 @@ class MigrateStep5BarangKeluar extends Command
     protected array $ssoUserDeptMap = [];     // sso_user_id => department_id
     protected array $ssoUserGroupMap = [];    // sso_user_id => group_id
     protected array $divisiToDeptMap = [];    // old_divisi_id => sso_department_id
+    protected array $divisiToGroupMap = [];   // old_divisi_id => sso_group_id
     protected array $partnerDivisiIds = [7, 8, 9, 13, 23, 29];
     protected $oldOrders;                    // id => order object (for created_by lookup)
 
@@ -222,7 +223,8 @@ class MigrateStep5BarangKeluar extends Command
         // Priority 3: From id_divisi (use divisi mapping)
         if (!empty($k->id_divisi)) {
             if (in_array($k->id_divisi, $this->partnerDivisiIds)) {
-                // Partner divisi → no department, can't determine specific group
+                // Partner divisi → map to group
+                $result['group_id'] = $this->divisiToGroupMap[$k->id_divisi] ?? null;
                 $result['source'] = 'from_divisi';
             } else {
                 $result['department_id'] = $this->divisiToDeptMap[$k->id_divisi] ?? null;
@@ -280,13 +282,29 @@ class MigrateStep5BarangKeluar extends Command
 
     private function buildDivisiMapping(): void
     {
-        $this->info('Building divisi → department mapping...');
+        $this->info('Building divisi → department/group mapping...');
         
         $oldDivisi = DB::connection('laporit')->table('divisi')->get()->keyBy('id');
         $ssoDepts = DB::connection('sso_mysql')->table('departments')->get()->keyBy('name');
+        $ssoGroups = DB::connection('sso_mysql')->table('groups')->get();
+
+        // Build name-to-group lookup (lowercased for fuzzy matching)
+        $groupByName = [];
+        foreach ($ssoGroups as $g) {
+            $groupByName[strtolower(trim($g->name))] = $g->id;
+        }
 
         foreach ($oldDivisi as $divisi) {
-            if (!in_array($divisi->id, $this->partnerDivisiIds)) {
+            if (in_array($divisi->id, $this->partnerDivisiIds)) {
+                // Partner divisi → match to SSO group by name
+                $name = strtolower(trim($divisi->nama));
+                if (isset($groupByName[$name])) {
+                    $this->divisiToGroupMap[$divisi->id] = $groupByName[$name];
+                    $this->info("  -> Divisi '" . $divisi->nama . "' (ID=" . $divisi->id . ") => Group ID=" . $groupByName[$name]);
+                } else {
+                    $this->warn("  -> Divisi '" . $divisi->nama . "' (ID=" . $divisi->id . ") => No matching group found");
+                }
+            } else {
                 $dept = $ssoDepts->get($divisi->nama);
                 if ($dept) {
                     $this->divisiToDeptMap[$divisi->id] = $dept->id;
@@ -295,6 +313,7 @@ class MigrateStep5BarangKeluar extends Command
         }
         
         $this->info("  -> " . count($this->divisiToDeptMap) . " divisi mapped to departments");
+        $this->info("  -> " . count($this->divisiToGroupMap) . " divisi mapped to groups");
     }
 
     private function loadOldOrders(): void
