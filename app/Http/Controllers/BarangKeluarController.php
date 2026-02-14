@@ -43,7 +43,7 @@ class BarangKeluarController extends Controller
     public function create()
     {
         return Inertia::render('BarangKeluar/Create', [
-            'barangList' => Barang::with('satuan')->where('qty_barang', '>', 0)->orderBy('nama_barang')->get(),
+            'barangList' => Barang::with(['satuan', 'ketersediaan'])->where('qty_barang', '>', 0)->orderBy('nama_barang')->get(),
             'departments' => Department::orderBy('name')->get(),
             'groups' => Group::with('partner')->orderBy('name')->get(),
             'users' => User::select('id', 'name', 'department_id', 'group_id', 'type')->orderBy('name')->get(),

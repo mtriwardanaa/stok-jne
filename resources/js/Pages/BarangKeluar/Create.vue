@@ -33,11 +33,35 @@ const filteredUsers = computed(() => {
     })
 })
 
+// Get partner_id from selected group
+const selectedGroupPartnerId = computed(() => {
+    if (!form.id_group) return null
+    const group = props.groups.find(g => String(g.id) === String(form.id_group))
+    return group?.partner_id || group?.partner?.id || null
+})
+
+// Filter barang by ketersediaan based on penerima type
+const filteredBarangList = computed(() => {
+    if (!form.tipe_penerima) return props.barangList
+    return props.barangList.filter(b => {
+        if (!b.ketersediaan || b.ketersediaan.length === 0) return false
+        if (form.tipe_penerima === 'internal') {
+            return b.ketersediaan.some(k => k.tipe === 'internal')
+        } else {
+            // Mitra: filter by partner_id from selected group
+            const partnerId = selectedGroupPartnerId.value
+            if (!partnerId) return true // belum pilih group, tampilkan semua
+            return b.ketersediaan.some(k => k.tipe === 'partner' && k.partner_id === partnerId)
+        }
+    })
+})
+
 // Reset dependent fields when tipe changes
 watch(() => form.tipe_penerima, () => {
     form.id_divisi = ''
     form.id_group = ''
     form.user_id = ''
+    form.items = [{ id_barang: '', qty_barang: 1 }]
 })
 
 watch(() => form.id_divisi, () => {
@@ -46,6 +70,7 @@ watch(() => form.id_divisi, () => {
 
 watch(() => form.id_group, () => {
     form.user_id = ''
+    form.items = [{ id_barang: '', qty_barang: 1 }]
 })
 
 // Auto-fill nama from selected user
@@ -69,7 +94,7 @@ const removeItem = (index) => {
 }
 
 const getBarangStock = (id) => {
-    const barang = props.barangList.find(b => b.id === id)
+    const barang = filteredBarangList.value.find(b => b.id === id) || props.barangList.find(b => b.id === id)
     return barang?.qty_barang || 0
 }
 
@@ -229,7 +254,7 @@ const submit = () => {
                                     <div class="col-span-7">
                                         <SearchableSelect
                                             v-model="item.id_barang"
-                                            :options="barangList.map(b => ({ value: b.id, label: b.nama_barang, sublabel: `Stok: ${b.qty_barang} ${b.satuan?.nama_satuan || ''}` }))"
+                                            :options="filteredBarangList.map(b => ({ value: b.id, label: b.nama_barang, sublabel: `Stok: ${b.qty_barang} ${b.satuan?.nama_satuan || ''}` }))"
                                             placeholder="Pilih barang..."
                                             :compact="true"
                                         />
