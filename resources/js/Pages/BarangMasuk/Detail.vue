@@ -7,7 +7,11 @@ const props = defineProps({
 })
 
 const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    return new Date(dateStr).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
+}
+
+const formatTime = (dateStr) => {
+    return new Date(dateStr).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
 }
 
 const formatCurrency = (value) => new Intl.NumberFormat('id-ID').format(value)
@@ -36,7 +40,7 @@ const totalNilai = () => {
 
             <!-- Info Card -->
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                     <div>
                         <p class="text-xs text-slate-500 font-medium uppercase mb-1">No. Barang Masuk</p>
                         <p class="font-semibold text-slate-800">{{ barangMasuk.no_barang_masuk }}</p>
@@ -44,6 +48,10 @@ const totalNilai = () => {
                     <div>
                         <p class="text-xs text-slate-500 font-medium uppercase mb-1">Tanggal</p>
                         <p class="font-semibold text-slate-800">{{ formatDate(barangMasuk.tanggal) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium uppercase mb-1">Jam</p>
+                        <p class="font-semibold text-slate-800">{{ formatTime(barangMasuk.tanggal) }} WIB</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-500 font-medium uppercase mb-1">Dibuat oleh</p>

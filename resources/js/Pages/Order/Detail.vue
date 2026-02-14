@@ -24,6 +24,10 @@ const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
 }
 
+const formatTime = (dateStr) => {
+    return new Date(dateStr).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+}
+
 const getStatusColor = (s) => {
     const colors = {
         menunggu: 'bg-amber-100 text-amber-800 border-amber-200',
@@ -79,7 +83,7 @@ const openHistoryDetail = (order) => {
             </div>
 
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
                     <div>
                         <p class="text-xs text-slate-500 font-medium uppercase mb-1">No. Order</p>
                         <p class="font-semibold text-slate-800">{{ order.no_order }}</p>
@@ -87,6 +91,10 @@ const openHistoryDetail = (order) => {
                     <div>
                         <p class="text-xs text-slate-500 font-medium uppercase mb-1">Tanggal</p>
                         <p class="font-semibold text-slate-800">{{ formatDate(order.tanggal) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium uppercase mb-1">Jam</p>
+                        <p class="font-semibold text-slate-800">{{ formatTime(order.tanggal) }} WIB</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-500 font-medium uppercase mb-1">Pemohon</p>
