@@ -40,9 +40,9 @@
 <body>
     <div class="header">
         <div class="company">
-            <h1>PT. TIKI Jalur Nugraha Ekakurir</h1>
-            <p>Jl. Tomang Raya No. 3, Jakarta Barat 11440</p>
-            <p>Telp: (021) 2927 8888</p>
+            <h1>JNE Main Branch Pontianak</h1>
+            <p>Jl. Gusti Hamzah No.35, Kota Pontianak 78115</p>
+            <p>Telp: (0561) 560 3111</p>
         </div>
         <div class="doc-info">
             <h2>Surat Jalan</h2>
@@ -57,11 +57,11 @@
         <div class="party">
             <h3>Pengirim</h3>
             <p><strong>Bagian General Affair</strong></p>
-            <p>PT. TIKI Jalur Nugraha Ekakurir</p>
+            <p>JNE Main Branch Pontianak</p>
         </div>
         <div class="party">
             <h3>Penerima</h3>
-            <p><strong>{{ $barangKeluar->nama_user_request ?? '-' }}</strong></p>
+            <p><strong>{{ $barangKeluar->requestUser->name ?? $barangKeluar->nama_user_request ?? '-' }}</strong></p>
             @if($barangKeluar->no_hp)
             <p>HP: {{ $barangKeluar->no_hp }}</p>
             @endif
@@ -106,10 +106,6 @@
     </div>
 
     <div class="signatures">
-        <div class="signature">
-            <p>Disiapkan</p>
-            <div class="signature-line">GA Officer</div>
-        </div>
         <div class="signature">
             <p>Dikirim</p>
             <div class="signature-line">{{ $barangKeluar->createdUser?->name ?? '-' }}</div>

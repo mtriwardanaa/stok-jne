@@ -2,8 +2,15 @@ import './bootstrap';
 import '../css/app.css';
 
 import { createApp, h } from 'vue';
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, router } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+
+// When session expires, Inertia receives a non-Inertia response (Blade login page).
+// Force a full-page redirect instead of rendering it inside the SPA container.
+router.on('invalid', (event) => {
+    event.preventDefault();
+    window.location.href = event.detail.response?.url || '/login';
+});
 
 createInertiaApp({
     title: (title) => `${title} - Stok GA`,

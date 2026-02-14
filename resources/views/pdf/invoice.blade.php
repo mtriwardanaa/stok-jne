@@ -40,9 +40,9 @@
 <body>
     <div class="header">
         <div class="company">
-            <h1>PT. TIKI Jalur Nugraha Ekakurir</h1>
-            <p>Jl. Tomang Raya No. 3, Jakarta Barat 11440</p>
-            <p>Telp: (021) 2927 8888 | Email: cs@jne.co.id</p>
+            <h1>JNE Main Branch Pontianak</h1>
+            <p>Jl. Gusti Hamzah No.35, Kota Pontianak 78115</p>
+            <p>Telp: (0561) 560 3111</p>
         </div>
         <div class="invoice-info">
             <h2>INVOICE</h2>
@@ -63,14 +63,14 @@
         <div class="party">
             <h3>Dari</h3>
             <p><strong>Bagian General Affair</strong></p>
-            <p>PT. TIKI Jalur Nugraha Ekakurir</p>
-            <p>Jakarta Barat</p>
+            <p>JNE Main Branch Pontianak</p>
+            <p>Kalimantan Barat</p>
         </div>
         <div class="party">
             <h3>Kepada</h3>
-            <p><strong>{{ $barangKeluar->nama_user_request ?? '-' }}</strong></p>
-            @if($barangKeluar->no_hp)
-            <p>HP: {{ $barangKeluar->no_hp }}</p>
+            <p><strong>{{ $barangKeluar->requestUser->name ?? $barangKeluar->nama_user_request ?? '-' }}</strong></p>
+            @if($barangKeluar?->requestUser?->phone)
+            <p>HP: {{ $barangKeluar?->requestUser?->phone }}</p>
             @endif
             <p>{{ $barangKeluar->organization_name }}</p>
         </div>
@@ -149,7 +149,7 @@
         </div>
         <div class="signature">
             <p>Diterima oleh,</p>
-            <div class="signature-line">{{ $barangKeluar->nama_user_request ?? '-' }}</div>
+            <div class="signature-line">{{ $barangKeluar->requestUser->name ?? $barangKeluar->nama_user_request ?? '-' }}</div>
         </div>
     </div>
 
