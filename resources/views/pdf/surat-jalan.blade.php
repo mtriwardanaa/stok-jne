@@ -65,7 +65,7 @@
             @if($barangKeluar->no_hp)
             <p>HP: {{ $barangKeluar->no_hp }}</p>
             @endif
-            <p>{{ $barangKeluar->organization_name }}</p>
+            <p>Dept/Group: {{ $barangKeluar->organization_name }}</p>
         </div>
     </div>
 

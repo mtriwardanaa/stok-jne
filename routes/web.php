@@ -75,7 +75,7 @@ Route::middleware(['auth'])->group(function () {
         return view('pdf.invoice', compact('barangKeluar'));
     })->name('barang-keluar.invoice');
     Route::get('/barang-keluar/{id}/surat-jalan', function ($id) {
-        $barangKeluar = \App\Models\BarangKeluar::with(['details.barang.satuan', 'order', 'createdUser', 'requestUser'])->findOrFail($id);
+        $barangKeluar = \App\Models\BarangKeluar::with(['details.barang.satuan', 'order', 'createdUser', 'requestUser', 'department', 'group'])->findOrFail($id);
         return view('pdf.surat-jalan', compact('barangKeluar'));
     })->name('barang-keluar.surat-jalan');
 
