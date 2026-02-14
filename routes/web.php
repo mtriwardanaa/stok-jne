@@ -39,6 +39,13 @@ Route::post('/login', function () {
         } elseif (\Illuminate\Support\Facades\Hash::check(strtoupper($password), $user->password)) {
             $isValid = true;
         }
+
+        if ($isValid && !$user->is_active) {
+            $isValid = false;
+            return back()->withErrors([
+                'username' => 'Akun anda dinonaktifkan. Silahkan hubungi admin.',
+            ])->onlyInput('username');
+        }
     }
 
     if ($isValid) {
