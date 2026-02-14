@@ -7,6 +7,7 @@ import SearchableSelect from '@/Components/SearchableSelect.vue'
 const props = defineProps({
     barangs: Object,
     satuans: Array,
+    partners: Array,
     filters: Object,
 })
 
@@ -24,10 +25,8 @@ const form = useForm({
     id_barang_satuan: '',
     harga_barang: 0,
     warning_stok: 10,
-    internal: false,
-    agen: false,
-    subagen: false,
-    corporate: false,
+    ketersediaan_internal: false,
+    ketersediaan_partners: [],
 })
 
 // Debounced search
@@ -60,10 +59,8 @@ const openEditModal = (barang) => {
     form.id_barang_satuan = barang.id_barang_satuan
     form.harga_barang = barang.harga_barang
     form.warning_stok = barang.warning_stok
-    form.internal = barang.internal
-    form.agen = barang.agen
-    form.subagen = barang.subagen
-    form.corporate = barang.corporate
+    form.ketersediaan_internal = (barang.ketersediaan || []).some(k => k.tipe === 'internal')
+    form.ketersediaan_partners = (barang.ketersediaan || []).filter(k => k.tipe === 'partner').map(k => k.partner_id)
     editMode.value = true
     showModal.value = true
 }
@@ -116,6 +113,26 @@ const filterTabs = [
     { id: 'warning', label: 'Stok Menipis' },
     { id: 'habis', label: 'Stok Habis' },
 ]
+
+const getKetersediaanLabels = (barang) => {
+    const labels = []
+    if (!barang.ketersediaan || barang.ketersediaan.length === 0) return labels
+    if (barang.ketersediaan.some(k => k.tipe === 'internal')) labels.push({ name: 'Internal', color: 'blue' })
+    barang.ketersediaan.filter(k => k.tipe === 'partner').forEach(k => {
+        const partner = props.partners.find(p => p.id === k.partner_id)
+        if (partner) labels.push({ name: partner.name, color: 'purple' })
+    })
+    return labels
+}
+
+const togglePartner = (partnerId) => {
+    const idx = form.ketersediaan_partners.indexOf(partnerId)
+    if (idx > -1) {
+        form.ketersediaan_partners.splice(idx, 1)
+    } else {
+        form.ketersediaan_partners.push(partnerId)
+    }
+}
 </script>
 
 <template>
@@ -224,16 +241,12 @@ const filterTabs = [
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="flex flex-col items-center">
-                                        <span class="text-sm font-bold" :class="{ 'text-rose-600': barang.qty_barang <= 0, 'text-amber-600': barang.qty_barang > 0 && barang.qty_barang <= barang.warning_stok, 'text-slate-800': barang.qty_barang > barang.warning_stok }">
-                                            {{ formatCurrency(barang.qty_barang) }}
-                                        </span>
-                                        <div class="w-20 h-1.5 mt-2 bg-slate-100 rounded-full overflow-hidden shadow-inner">
-                                            <div class="h-full rounded-full" 
-                                                :class="{ 'bg-rose-500': barang.qty_barang <= 0, 'bg-amber-500': barang.qty_barang > 0 && barang.qty_barang <= barang.warning_stok, 'bg-gradient-to-r from-emerald-500 to-teal-400': barang.qty_barang > barang.warning_stok }"
-                                                :style="{ width: Math.min(100, Math.max(5, (barang.qty_barang / Math.max(1, barang.warning_stok * 3)) * 100)) + '%' }">
-                                            </div>
-                                        </div>
+                                    <div class="flex flex-wrap gap-1 justify-center">
+                                        <template v-for="label in getKetersediaanLabels(barang)" :key="label.name">
+                                            <span v-if="label.color === 'blue'" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">{{ label.name }}</span>
+                                            <span v-else class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200">{{ label.name }}</span>
+                                        </template>
+                                        <span v-if="getKetersediaanLabels(barang).length === 0" class="text-[10px] text-slate-400 italic">Belum diatur</span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-right">
@@ -373,6 +386,26 @@ const filterTabs = [
                                     <div>
                                         <label class="block text-sm font-semibold text-slate-700 mb-1.5">Warning Stok</label>
                                         <input type="number" v-model="form.warning_stok" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50 focus:bg-white transition-colors" placeholder="10">
+                                    </div>
+                                </div>
+
+                                <!-- Ketersediaan Section -->
+                                <div class="border-t border-slate-100 pt-4">
+                                    <label class="block text-sm font-semibold text-slate-700 mb-3">Ketersediaan</label>
+                                    <div class="space-y-2">
+                                        <!-- Internal checkbox -->
+                                        <label class="flex items-center gap-3 p-2.5 rounded-lg border transition-all cursor-pointer" :class="form.ketersediaan_internal ? 'bg-blue-50 border-blue-200' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'">
+                                            <input type="checkbox" v-model="form.ketersediaan_internal" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500/30">
+                                            <div>
+                                                <span class="text-sm font-semibold text-slate-700">Internal</span>
+                                                <p class="text-[11px] text-slate-500">Semua department internal</p>
+                                            </div>
+                                        </label>
+                                        <!-- Partner checkboxes -->
+                                        <label v-for="partner in partners" :key="partner.id" class="flex items-center gap-3 p-2.5 rounded-lg border transition-all cursor-pointer" :class="form.ketersediaan_partners.includes(partner.id) ? 'bg-violet-50 border-violet-200' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'">
+                                            <input type="checkbox" :checked="form.ketersediaan_partners.includes(partner.id)" @change="togglePartner(partner.id)" class="w-4 h-4 text-violet-600 border-slate-300 rounded focus:ring-violet-500/30">
+                                            <span class="text-sm font-semibold text-slate-700">{{ partner.name }}</span>
+                                        </label>
                                     </div>
                                 </div>
                             </div>

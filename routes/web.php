@@ -10,6 +10,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\StokOpnameController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\KetersediaanController;
 
 
 // Public routes
@@ -55,6 +56,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/barang', [BarangController::class, 'store'])->name('barang.store');
     Route::put('/barang/{barang}', [BarangController::class, 'update'])->name('barang.update');
     Route::delete('/barang/{barang}', [BarangController::class, 'destroy'])->name('barang.destroy');
+
+    // Ketersediaan Barang
+    Route::get('/ketersediaan', [KetersediaanController::class, 'index'])->name('ketersediaan.index');
+    Route::post('/ketersediaan', [KetersediaanController::class, 'update'])->name('ketersediaan.update');
 
     // Barang Masuk
     Route::get('/barang-masuk', [BarangMasukController::class, 'index'])->name('barang-masuk.index');

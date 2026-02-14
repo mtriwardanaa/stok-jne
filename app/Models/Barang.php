@@ -58,6 +58,11 @@ class Barang extends Model
         return $this->hasMany(BarangHarga::class, 'id_barang');
     }
 
+    public function ketersediaan()
+    {
+        return $this->hasMany(BarangKetersediaan::class, 'id_barang');
+    }
+
     /**
      * Get stock status: aman, warning, habis
      */

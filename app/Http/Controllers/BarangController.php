@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\BarangKetersediaan;
 use App\Models\BarangSatuan;
+use App\Models\Partner;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,7 +16,7 @@ class BarangController extends Controller
         $search = $request->get('search', '');
         $filter = $request->get('filter', '');
 
-        $barangs = Barang::with('satuan')
+        $barangs = Barang::with(['satuan', 'ketersediaan'])
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($query) use ($search) {
                     $query->where('kode_barang', 'like', "%{$search}%")
@@ -29,10 +31,12 @@ class BarangController extends Controller
             ->withQueryString();
 
         $satuans = BarangSatuan::orderBy('nama_satuan')->get();
+        $partners = Partner::orderBy('name')->get();
 
         return Inertia::render('Barang/Index', [
             'barangs' => $barangs,
             'satuans' => $satuans,
+            'partners' => $partners,
             'filters' => [
                 'search' => $search,
                 'filter' => $filter,
@@ -48,13 +52,20 @@ class BarangController extends Controller
             'id_barang_satuan' => 'required|exists:stok_barang_satuan,id',
             'harga_barang' => 'required|numeric|min:0',
             'warning_stok' => 'required|integer|min:0',
-            'internal' => 'boolean',
-            'agen' => 'boolean',
-            'subagen' => 'boolean',
-            'corporate' => 'boolean',
+            'ketersediaan_internal' => 'boolean',
+            'ketersediaan_partners' => 'array',
+            'ketersediaan_partners.*' => 'integer',
         ]);
 
-        Barang::create($validated);
+        $barang = Barang::create([
+            'kode_barang' => $validated['kode_barang'],
+            'nama_barang' => $validated['nama_barang'],
+            'id_barang_satuan' => $validated['id_barang_satuan'],
+            'harga_barang' => $validated['harga_barang'],
+            'warning_stok' => $validated['warning_stok'],
+        ]);
+
+        $this->syncKetersediaan($barang, $request);
 
         return back()->with('success', 'Barang berhasil ditambahkan.');
     }
@@ -67,13 +78,20 @@ class BarangController extends Controller
             'id_barang_satuan' => 'required|exists:stok_barang_satuan,id',
             'harga_barang' => 'required|numeric|min:0',
             'warning_stok' => 'required|integer|min:0',
-            'internal' => 'boolean',
-            'agen' => 'boolean',
-            'subagen' => 'boolean',
-            'corporate' => 'boolean',
+            'ketersediaan_internal' => 'boolean',
+            'ketersediaan_partners' => 'array',
+            'ketersediaan_partners.*' => 'integer',
         ]);
 
-        $barang->update($validated);
+        $barang->update([
+            'kode_barang' => $validated['kode_barang'],
+            'nama_barang' => $validated['nama_barang'],
+            'id_barang_satuan' => $validated['id_barang_satuan'],
+            'harga_barang' => $validated['harga_barang'],
+            'warning_stok' => $validated['warning_stok'],
+        ]);
+
+        $this->syncKetersediaan($barang, $request);
 
         return back()->with('success', 'Barang berhasil diupdate.');
     }
@@ -83,5 +101,36 @@ class BarangController extends Controller
         $barang->delete();
 
         return back()->with('success', 'Barang berhasil dihapus.');
+    }
+
+    private function syncKetersediaan(Barang $barang, Request $request): void
+    {
+        // Delete existing ketersediaan
+        $barang->ketersediaan()->delete();
+
+        $rows = [];
+
+        // Internal
+        if ($request->boolean('ketersediaan_internal')) {
+            $rows[] = [
+                'id_barang' => $barang->id,
+                'tipe' => 'internal',
+                'partner_id' => null,
+            ];
+        }
+
+        // Partners
+        $partnerIds = $request->input('ketersediaan_partners', []);
+        foreach ($partnerIds as $partnerId) {
+            $rows[] = [
+                'id_barang' => $barang->id,
+                'tipe' => 'partner',
+                'partner_id' => $partnerId,
+            ];
+        }
+
+        if (!empty($rows)) {
+            $barang->ketersediaan()->createMany($rows);
+        }
     }
 }
