@@ -239,7 +239,7 @@ const formatNumber = (value) => {
                 </div>
 
                 <!-- Stok Menipis -->
-                <div class="group relative bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-amber-500/5 hover:-translate-y-0.5 transition-all duration-300">
+                <Link href="/barang?filter=warning" class="group relative bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-amber-500/5 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer block">
                     <div class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <div class="relative">
                         <div class="flex items-start justify-between mb-4">
@@ -251,12 +251,17 @@ const formatNumber = (value) => {
                         </div>
                         <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.12em] mb-1">Stok Menipis</p>
                         <p class="text-3xl font-extrabold text-amber-500 tracking-tight">{{ formatNumber(stats.stok_warning) }}</p>
-                        <p class="mt-3 text-[11px] text-slate-400 font-medium">Perlu restock segera</p>
+                        <div class="mt-3 flex items-center gap-1.5">
+                            <span class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 group-hover:text-amber-700 transition-colors">
+                                Lihat detail
+                                <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                            </span>
+                        </div>
                     </div>
-                </div>
+                </Link>
 
                 <!-- Stok Habis -->
-                <div class="group relative bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-rose-500/5 hover:-translate-y-0.5 transition-all duration-300">
+                <Link href="/barang?filter=habis" class="group relative bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-rose-500/5 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer block">
                     <div class="absolute inset-0 bg-gradient-to-br from-rose-50/50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <div class="relative">
                         <div class="flex items-start justify-between mb-4">
@@ -268,14 +273,14 @@ const formatNumber = (value) => {
                         </div>
                         <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.12em] mb-1">Stok Habis</p>
                         <p class="text-3xl font-extrabold text-rose-500 tracking-tight">{{ formatNumber(stats.stok_habis) }}</p>
-                        <div class="mt-3">
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600">
-                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-                                Critical
+                        <div class="mt-3 flex items-center gap-1.5">
+                            <span class="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 group-hover:text-rose-700 transition-colors">
+                                Lihat detail
+                                <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                             </span>
                         </div>
                     </div>
-                </div>
+                </Link>
 
                 <!-- Order Pending -->
                 <div class="group relative bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-0.5 transition-all duration-300">
