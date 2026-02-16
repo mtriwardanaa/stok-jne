@@ -157,14 +157,19 @@ onUnmounted(() => {
                     <li
                         v-for="option in filteredOptions"
                         :key="option.value"
-                        @click="selectOption(option)"
-                        class="px-3 py-2.5 cursor-pointer transition-colors flex items-center justify-between text-sm"
-                        :class="String(modelValue) === String(option.value) 
-                            ? 'bg-indigo-50 text-indigo-700 font-medium' 
-                            : 'hover:bg-slate-50 text-slate-700'"
+                        @click="!option.disabled && selectOption(option)"
+                        class="px-3 py-2.5 transition-colors flex items-center justify-between text-sm"
+                        :class="option.disabled
+                            ? 'opacity-50 cursor-not-allowed bg-slate-50 text-rose-400'
+                            : String(modelValue) === String(option.value) 
+                                ? 'bg-indigo-50 text-indigo-700 font-medium cursor-pointer' 
+                                : 'hover:bg-slate-50 text-slate-700 cursor-pointer'"
                         :data-selected="String(modelValue) === String(option.value) ? 'true' : undefined"
                     >
-                        <span>{{ option.label }}</span>
+                        <div>
+                            <span>{{ option.label }}</span>
+                            <p v-if="option.sublabel" class="text-[10px] mt-0.5" :class="option.disabled ? 'text-rose-300' : 'text-slate-400'">{{ option.sublabel }}</p>
+                        </div>
                         <svg 
                             v-if="String(modelValue) === String(option.value)"
                             class="w-4 h-4 text-indigo-600" 

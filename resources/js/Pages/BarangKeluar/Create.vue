@@ -98,6 +98,17 @@ const getBarangStock = (id) => {
     return barang?.qty_barang || 0
 }
 
+const isOutOfStock = (barang) => barang.qty_barang <= 0
+
+const getBarangOptions = computed(() => {
+    return filteredBarangList.value.map(b => ({
+        value: b.id,
+        label: b.qty_barang <= 0 ? `${b.nama_barang} — ⛔ STOK KOSONG` : b.nama_barang,
+        sublabel: b.qty_barang <= 0 ? 'Tidak dapat dipilih' : `Stok: ${b.qty_barang} ${b.satuan?.nama_satuan || ''}`,
+        disabled: b.qty_barang <= 0,
+    }))
+})
+
 const isQtyOverStock = (item) => {
     if (!item.id_barang) return false
     return item.qty_barang > getBarangStock(item.id_barang)
@@ -254,7 +265,7 @@ const submit = () => {
                                     <div class="col-span-7">
                                         <SearchableSelect
                                             v-model="item.id_barang"
-                                            :options="filteredBarangList.map(b => ({ value: b.id, label: b.nama_barang, sublabel: `Stok: ${b.qty_barang} ${b.satuan?.nama_satuan || ''}` }))"
+                                            :options="getBarangOptions"
                                             placeholder="Pilih barang..."
                                             :compact="true"
                                         />
