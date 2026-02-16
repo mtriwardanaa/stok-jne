@@ -115,6 +115,16 @@ class OrderController extends Controller
         try {
             $user = Auth::user();
 
+            // Lock the order row to prevent race condition with user edit/delete
+            $order = Order::lockForUpdate()->findOrFail($order->id);
+            $order->load('details.barang');
+
+            // Re-check status after acquiring lock
+            if ($order->status !== 'menunggu') {
+                DB::rollback();
+                return back()->with('error', 'Order sudah tidak bisa diapprove karena status sudah berubah.');
+            }
+
             // Validate stock availability for each detail
             foreach ($order->details as $detail) {
                 $qtyToApprove = $approvedQty[$detail->id] ?? 0;
@@ -206,13 +216,29 @@ class OrderController extends Controller
             'rejectReason' => 'required|min:4',
         ]);
 
-        $order->update([
-            'status' => 'ditolak',
-            'rejected_by' => Auth::id(),
-            'tanggal_reject' => now(),
-            'rejected_text' => $validated['rejectReason'],
-        ]);
+        DB::beginTransaction();
+        try {
+            // Lock the order row to prevent race condition with user edit/delete
+            $order = Order::lockForUpdate()->findOrFail($order->id);
 
-        return redirect()->route('order.index')->with('success', 'Order berhasil ditolak.');
+            // Re-check status after acquiring lock
+            if ($order->status !== 'menunggu') {
+                DB::rollback();
+                return back()->with('error', 'Order sudah tidak bisa ditolak karena status sudah berubah.');
+            }
+
+            $order->update([
+                'status' => 'ditolak',
+                'rejected_by' => Auth::id(),
+                'tanggal_reject' => now(),
+                'rejected_text' => $validated['rejectReason'],
+            ]);
+
+            DB::commit();
+            return redirect()->route('order.index')->with('success', 'Order berhasil ditolak.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 }
