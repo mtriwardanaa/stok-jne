@@ -215,6 +215,7 @@ const togglePartner = (partnerId) => {
                                 <th class="px-6 py-5 text-center text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Satuan</th>
                                 <th class="px-6 py-5 text-center text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Ketersediaan</th>
                                 <th class="px-6 py-5 text-right text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Harga Satuan</th>
+                                <th class="px-6 py-5 text-center text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Stok</th>
                                 <th class="px-6 py-5 text-center text-[11px] font-semibold text-indigo-800 uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-5 text-center text-[11px] font-semibold text-indigo-800 uppercase tracking-wider w-32">Aksi</th>
                             </tr>
@@ -255,6 +256,18 @@ const togglePartner = (partnerId) => {
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-center">
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-base font-extrabold tabular-nums" :class="{
+                                            'text-rose-600': barang.qty_barang <= 0,
+                                            'text-amber-600': barang.qty_barang > 0 && barang.qty_barang <= barang.warning_stok,
+                                            'text-slate-800': barang.qty_barang > barang.warning_stok
+                                        }">
+                                            {{ formatCurrency(barang.qty_barang) }}
+                                        </span>
+                                        <span class="text-[10px] text-slate-400 font-medium mt-0.5">{{ barang.satuan?.nama_satuan }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-center">
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-sm"
                                         :class="[statusConfig[getStatus(barang)].bg, statusConfig[getStatus(barang)].text, statusConfig[getStatus(barang)].border]">
                                         <span class="relative flex h-2 w-2">
@@ -280,7 +293,7 @@ const togglePartner = (partnerId) => {
                                 </td>
                             </tr>
                             <tr v-if="barangs.data.length === 0">
-                                <td colspan="6" class="px-6 py-20 text-center">
+                                <td colspan="7" class="px-6 py-20 text-center">
                                     <div class="flex flex-col items-center justify-center">
                                         <div class="relative w-24 h-24 mb-6">
                                             <div class="absolute inset-0 bg-indigo-100 rounded-full animate-pulse"></div>
