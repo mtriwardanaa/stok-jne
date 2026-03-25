@@ -30,15 +30,24 @@ class OrderController extends Controller
                 });
             })
             ->when($status, fn($q) => $q->where('status', $status))
-            ->when($month, fn($q) => $q->whereMonth('tanggal', $month))
-            ->when($year, fn($q) => $q->whereYear('tanggal', $year))
+            ->where(function ($q) use ($month, $year) {
+                // Show orders from selected month OR any pending orders from other months
+                $q->where(function ($sub) use ($month, $year) {
+                    $sub->when($month, fn($s) => $s->whereMonth('tanggal', $month))
+                        ->when($year, fn($s) => $s->whereYear('tanggal', $year));
+                })->orWhere('status', 'menunggu');
+            })
+            ->orderByRaw("CASE WHEN status = 'menunggu' THEN 0 ELSE 1 END")
             ->latest('tanggal')
             ->paginate(15)
             ->withQueryString();
 
+        // Count menunggu across ALL months so user sees total pending
+        $menungguCount = Order::pending()->count();
+
         $statusCounts = [
             'all' => Order::whereMonth('tanggal', $month)->whereYear('tanggal', $year)->count(),
-            'menunggu' => Order::pending()->whereMonth('tanggal', $month)->whereYear('tanggal', $year)->count(),
+            'menunggu' => $menungguCount,
             'diproses' => Order::processing()->whereMonth('tanggal', $month)->whereYear('tanggal', $year)->count(),
             'selesai' => Order::completed()->whereMonth('tanggal', $month)->whereYear('tanggal', $year)->count(),
             'ditolak' => Order::rejected()->whereMonth('tanggal', $month)->whereYear('tanggal', $year)->count(),
