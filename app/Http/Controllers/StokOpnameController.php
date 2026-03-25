@@ -47,7 +47,8 @@ class StokOpnameController extends Controller
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
             ->orderBy('tanggal', 'desc')
-            ->get();
+            ->paginate(15)
+            ->withQueryString();
 
         return Inertia::render('StokOpname/Index', [
             'barangsWithStock' => $barangsWithStock,

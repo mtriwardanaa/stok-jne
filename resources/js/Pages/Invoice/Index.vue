@@ -196,6 +196,31 @@ const getTotalQty = (details) => {
                         </tbody>
                     </table>
                 </div>
+                
+                <!-- Pagination -->
+                <div v-if="invoices.links && invoices.links.length > 3" class="px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-slate-500">
+                            Menampilkan {{ invoices.from }} - {{ invoices.to }} dari {{ invoices.total }} data
+                        </p>
+                        <div class="flex gap-1">
+                            <template v-for="(link, index) in invoices.links" :key="index">
+                                <component 
+                                    :is="link.url ? 'a' : 'span'"
+                                    :href="link.url"
+                                    @click.prevent="link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })"
+                                    class="px-3 py-2 text-sm rounded-lg transition-all"
+                                    :class="{
+                                        'bg-amber-600 text-white': link.active,
+                                        'text-slate-600 hover:bg-slate-100 cursor-pointer': link.url && !link.active,
+                                        'text-slate-300 cursor-not-allowed': !link.url
+                                    }"
+                                    v-html="link.label"
+                                />
+                            </template>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </AppLayout>

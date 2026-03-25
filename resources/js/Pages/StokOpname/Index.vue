@@ -7,7 +7,7 @@ import SearchableSelect from '@/Components/SearchableSelect.vue'
 const props = defineProps({
     barangsWithStock: Array,
     allBarangs: Array,
-    opnameHistory: Array,
+    opnameHistory: Object,
     filters: Object,
 })
 
@@ -201,7 +201,7 @@ const filteredBarangs = computed(() => {
                                 Riwayat Opname
                                 <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold" 
                                     :class="activeTab === 'history' ? 'bg-violet-100 text-violet-600' : 'bg-slate-200/80 text-slate-500'">
-                                    {{ opnameHistory?.length || 0 }}
+                                    {{ opnameHistory?.total || 0 }}
                                 </span>
                             </button>
                         </div>
@@ -336,7 +336,7 @@ const filteredBarangs = computed(() => {
 
             <!-- Tab Content: History -->
             <div v-show="activeTab === 'history'" class="bg-white rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-200/50 overflow-hidden">
-                <div v-if="opnameHistory?.length > 0" class="overflow-x-auto">
+                <div v-if="opnameHistory?.data?.length > 0" class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead class="bg-indigo-100 border-b border-indigo-200">
                             <tr>
@@ -350,7 +350,7 @@ const filteredBarangs = computed(() => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <tr v-for="opname in opnameHistory" :key="opname.id" class="hover:bg-slate-50/50 transition-colors">
+                            <tr v-for="opname in opnameHistory.data" :key="opname.id" class="hover:bg-slate-50/50 transition-colors">
                                 <td class="px-6 py-4 font-semibold text-slate-800 text-sm">{{ opname.no_opname }}</td>
                                 <td class="px-6 py-4 text-sm text-slate-500">{{ formatDate(opname.tanggal) }}</td>
                                 <td class="px-6 py-4 text-sm text-slate-700">{{ opname.barang?.nama_barang }}</td>
@@ -371,6 +371,31 @@ const filteredBarangs = computed(() => {
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div v-if="opnameHistory.links && opnameHistory.links.length > 3" class="px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-slate-500">
+                            Menampilkan {{ opnameHistory.from }} - {{ opnameHistory.to }} dari {{ opnameHistory.total }} data
+                        </p>
+                        <div class="flex gap-1">
+                            <template v-for="(link, index) in opnameHistory.links" :key="index">
+                                <component 
+                                    :is="link.url ? 'a' : 'span'"
+                                    :href="link.url"
+                                    @click.prevent="link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })"
+                                    class="px-3 py-2 text-sm rounded-lg transition-all"
+                                    :class="{
+                                        'bg-violet-600 text-white': link.active,
+                                        'text-slate-600 hover:bg-slate-100 cursor-pointer': link.url && !link.active,
+                                        'text-slate-300 cursor-not-allowed': !link.url
+                                    }"
+                                    v-html="link.label"
+                                />
+                            </template>
+                        </div>
+                    </div>
                 </div>
                 <div v-else class="py-16 text-center text-slate-400">
                     <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
